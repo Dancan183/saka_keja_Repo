@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets and local data (never commit these)
+.env
+.env.local
+db.sqlite3
+
+# Generated files
+staticfiles/
+media/
+
+# Vercel
+.vercel/
