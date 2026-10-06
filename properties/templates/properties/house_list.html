@@ -1,0 +1,87 @@
+{% extends "properties/base.html" %}
+
+{% block content %}
+
+<h1>Find a house</h1>
+
+<form method="get" class="search-form">
+  {{ form.non_field_errors }}
+
+  <div class="field">
+    <label for="{{ form.location.id_for_label }}">Location</label>
+    {{ form.location }}
+  </div>
+
+  <div class="field">
+    <label for="{{ form.min_rent.id_for_label }}">Min rent (KSh)</label>
+    {{ form.min_rent }}
+    {{ form.min_rent.errors }}
+  </div>
+
+  <div class="field">
+    <label for="{{ form.max_rent.id_for_label }}">Max rent (KSh)</label>
+    {{ form.max_rent }}
+    {{ form.max_rent.errors }}
+  </div>
+
+  <div class="field">
+    <label for="{{ form.bedrooms.id_for_label }}">Bedrooms</label>
+    {{ form.bedrooms }}
+    {{ form.bedrooms.errors }}
+  </div>
+
+  <button type="submit">Search</button>
+  <a href="{% url 'properties:house_list' %}">Clear</a>
+</form>
+
+<p class="result-count">
+  {{ page_obj.paginator.count }} house{{ page_obj.paginator.count|pluralize }} found
+</p>
+
+{% if page_obj %}
+  <div class="house-grid">
+    {% for house in page_obj %}
+      <article class="house-card">
+        <a href="{% url 'properties:house_detail' house.pk %}">
+          {% with image=house.images.all.0 %}
+            {% if image %}
+              <img src="{{ image.image.url }}" alt="{{ house.title }}" loading="lazy">
+            {% else %}
+              <div class="no-photo">No photo</div>
+            {% endif %}
+          {% endwith %}
+        </a>
+
+        <h2>
+          <a href="{% url 'properties:house_detail' house.pk %}">{{ house.title }}</a>
+        </h2>
+        <p class="location">{{ house.location.name }}</p>
+        <p class="rent">KSh {{ house.rent|floatformat:"0g" }} / month</p>
+        <p class="meta">
+          {{ house.bedrooms }} bed &middot;
+          {{ house.bathrooms }} bath &middot;
+          {{ house.get_house_type_display }}
+        </p>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+    <nav class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?{% if query %}{{ query }}&{% endif %}page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
+      {% endif %}
+
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+      {% if page_obj.has_next %}
+        <a href="?{% if query %}{{ query }}&{% endif %}page={{ page_obj.next_page_number }}">Next &raquo;</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+
+{% else %}
+  <p class="empty">No houses match your search. Try a wider rent range or a different location.</p>
+{% endif %}
+
+{% endblock %}

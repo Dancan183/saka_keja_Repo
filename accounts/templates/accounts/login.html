@@ -1,0 +1,30 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Login | Saka Keja{% endblock %}
+
+{% block content %}
+
+<h1>Login</h1>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {{ form.non_field_errors }}
+
+  {% for field in form %}
+    <div class="field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    </div>
+  {% endfor %}
+
+  {# Keeps ?next= so users return to where they were going #}
+  <input type="hidden" name="next" value="{{ next }}">
+
+  <button type="submit">Login</button>
+</form>
+
+<p>No account yet? <a href="{% url 'accounts:register' %}">Register</a></p>
+
+{% endblock %}

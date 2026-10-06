@@ -1,0 +1,93 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Inquiries | Saka Keja{% endblock %}
+
+{% block content %}
+
+<style>
+  .inq-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+  .inq-header h1 { margin: 0; }
+  .filter-note { background: var(--grey); border-radius: 8px; padding: .6rem .9rem; margin-bottom: 1rem; }
+  .inq-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .inq-card { border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .inq-card.unread { border-left: 5px solid var(--green); background: #f6fbf8; }
+  .inq-person { display: flex; gap: .8rem; align-items: center; margin-bottom: .7rem; }
+  .avatar { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
+  .inq-person strong { display: block; }
+  .inq-person span { color: #6b7280; font-size: .85rem; }
+  .inq-house { font-size: .9rem; margin: 0 0 .6rem; }
+  .bubble { background: var(--grey); border-radius: 10px 10px 10px 2px; padding: .7rem .9rem; margin: 0 0 .8rem; }
+  .inq-card.unread .bubble { background: #e3f6ec; }
+  .inq-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+  .inq-actions form { display: inline; }
+  .btn-outline { background: #fff; color: var(--green); border: 1px solid var(--green); }
+  .btn-whatsapp { background: #25d366; }
+  .empty-state { text-align: center; padding: 3rem 1rem; background: var(--grey); border-radius: 12px; }
+</style>
+
+<div class="inq-header">
+  <h1>Tenant inquiries</h1>
+  {% if unread_count %}<span class="badge">{{ unread_count }} new</span>{% endif %}
+</div>
+
+{% if selected_house %}
+  <p class="filter-note">
+    Showing inquiries for <strong>{{ selected_house.title }}</strong>.
+    <a href="{% url 'inquiries:inbox' %}">Show all</a>
+  </p>
+{% endif %}
+
+{% if inquiries %}
+  <ul class="inq-list">
+    {% for inquiry in inquiries %}
+      <li class="inq-card {% if not inquiry.is_read %}unread{% endif %}">
+
+        <div class="inq-person">
+          <div class="avatar">{{ inquiry.tenant.username|slice:":1"|upper }}</div>
+          <div>
+            <strong>
+              {{ inquiry.tenant.get_full_name|default:inquiry.tenant.username }}
+              {% if not inquiry.is_read %}<span class="badge">New</span>{% endif %}
+            </strong>
+            <span>{{ inquiry.created_at|timesince }} ago</span>
+          </div>
+        </div>
+
+        <p class="inq-house">
+          About: <a href="{% url 'properties:house_detail' inquiry.house.pk %}">{{ inquiry.house.title }}</a>
+        </p>
+
+        <p class="bubble">{{ inquiry.message|linebreaksbr }}</p>
+
+        <div class="inq-actions">
+          {% if inquiry.contact_phone %}
+            <a href="tel:{{ inquiry.contact_phone }}" class="button">Call {{ inquiry.contact_phone }}</a>
+          {% endif %}
+          {% if inquiry.whatsapp_number %}
+            <a href="https://wa.me/{{ inquiry.whatsapp_number }}" class="button btn-whatsapp" target="_blank" rel="noopener">WhatsApp</a>
+          {% endif %}
+          {% if inquiry.tenant.email %}
+            <a href="mailto:{{ inquiry.tenant.email }}" class="button btn-outline">Email</a>
+          {% endif %}
+
+          {% if not inquiry.is_read %}
+            <form method="post" action="{% url 'inquiries:mark_read' inquiry.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-outline">Mark as read</button>
+            </form>
+          {% endif %}
+        </div>
+
+      </li>
+    {% endfor %}
+  </ul>
+
+{% else %}
+  <div class="empty-state">
+    <h2>No inquiries yet</h2>
+    <p>When a tenant messages you about a house, it will appear here.</p>
+    <a href="{% url 'properties:my_houses' %}" class="button">My houses</a>
+  </div>
+{% endif %}
+
+{% endblock %}

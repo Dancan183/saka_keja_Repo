@@ -1,0 +1,78 @@
+{% extends "properties/base.html" %}
+
+{% block content %}
+
+<p><a href="{% url 'properties:house_list' %}">&laquo; Back to search</a></p>
+
+<article class="house-detail">
+
+  <header>
+    <h1>{{ house.title }}</h1>
+    <p class="location">{{ house.location.name }}</p>
+    <p class="status status-{{ house.status }}">{{ house.get_status_display }}</p>
+  </header>
+
+  <section class="gallery">
+    {% for image in house.images.all %}
+      <img src="{{ image.image.url }}" alt="{{ house.title }} photo {{ forloop.counter }}" loading="lazy">
+    {% empty %}
+      <div class="no-photo">No photos yet</div>
+    {% endfor %}
+  </section>
+
+  <section class="summary">
+    <p class="rent">KSh {{ house.rent|floatformat:"0g" }} / month</p>
+
+    <ul class="facts">
+      <li><strong>Type:</strong> {{ house.get_house_type_display }}</li>
+      <li><strong>Bedrooms:</strong> {{ house.bedrooms }}</li>
+      <li><strong>Bathrooms:</strong> {{ house.bathrooms }}</li>
+      <li><strong>Location:</strong> {{ house.location.name }}</li>
+      <li><strong>Listed:</strong> {{ house.created_at|date:"j M Y" }}</li>
+    </ul>
+  </section>
+
+  {% if house.description %}
+    <section class="description">
+      <h2>About this house</h2>
+      {{ house.description|linebreaks }}
+    </section>
+  {% endif %}
+
+<section class="contact">
+  <h2>Contact the landlord</h2>
+
+  {% if house.is_vacant %}
+    <p>
+      Listed by {{ house.landlord.get_full_name|default:house.landlord.username }}
+    </p>
+
+    {% if house.landlord.phone_number %}
+      <p>
+        <a href="tel:{{ house.landlord.phone_number }}">Call {{ house.landlord.phone_number }}</a>
+      </p>
+    {% endif %}
+
+    {% if user.is_landlord %}
+      <p>Log in with a tenant account to send an inquiry.</p>
+    {% else %}
+      <a href="{% url 'inquiries:send_inquiry' house.pk %}" class="button">
+        Send an inquiry
+      </a>
+    {% endif %}
+
+  {% else %}
+    <p>This house is currently occupied.</p>
+  {% endif %}
+</section>
+
+  {% if request.user == house.landlord %}
+    <section class="owner-actions">
+      <a href="{% url 'properties:house_update' house.pk %}">Edit</a>
+      <a href="{% url 'properties:image_upload' house.pk %}">Manage photos</a>
+    </section>
+  {% endif %}
+
+</article>
+
+{% endblock %}

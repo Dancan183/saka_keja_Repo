@@ -1,0 +1,39 @@
+{% extends "properties/base.html" %}
+
+{% block content %}
+
+<p><a href="{% url 'properties:my_houses' %}">&laquo; Back to my houses</a></p>
+
+<h1>{{ title }}</h1>
+
+<form method="post" class="house-form" novalidate>
+  {% csrf_token %}
+
+  {{ form.non_field_errors }}
+
+  {% for field in form %}
+    <div class="field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}
+        <small class="help">{{ field.help_text }}</small>
+      {% endif %}
+      {{ field.errors }}
+    </div>
+  {% endfor %}
+
+  <button type="submit">
+    {% if house %}Save changes{% else %}Add house{% endif %}
+  </button>
+  <a href="{% url 'properties:my_houses' %}">Cancel</a>
+</form>
+
+{% if house %}
+  <p>
+    <a href="{% url 'properties:image_upload' house.pk %}">Manage photos for this house</a>
+  </p>
+{% else %}
+  <p class="note">You can upload photos after saving the house.</p>
+{% endif %}
+
+{% endblock %}

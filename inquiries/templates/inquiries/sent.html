@@ -1,0 +1,85 @@
+{% extends "properties/base.html" %}
+
+{% block title %}My inquiries | Saka Keja{% endblock %}
+
+{% block content %}
+
+<style>
+  .inq-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+  .inq-header h1 { margin: 0; }
+  .inq-count { color: #6b7280; }
+  .inq-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .inq-card { display: grid; grid-template-columns: 1fr; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  @media (min-width: 640px) { .inq-card { grid-template-columns: 200px 1fr; } }
+  .inq-card img, .inq-card .no-photo { width: 100%; height: 100%; min-height: 150px; max-height: 220px; object-fit: cover; border-radius: 0; }
+  .inq-body { padding: 1rem; }
+  .inq-top { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: flex-start; }
+  .inq-body h2 { font-size: 1.1rem; margin: 0; }
+  .inq-body h2 a { text-decoration: none; }
+  .inq-meta { color: #6b7280; font-size: .9rem; margin: .25rem 0 .7rem; }
+  .bubble { background: var(--grey); border-radius: 10px 10px 10px 2px; padding: .7rem .9rem; margin: 0 0 .8rem; }
+  .bubble small { display: block; color: #6b7280; margin-bottom: .2rem; }
+  .inq-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; font-size: .9rem; }
+  .empty-state { text-align: center; padding: 3rem 1rem; background: var(--grey); border-radius: 12px; }
+</style>
+
+<div class="inq-header">
+  <h1>My inquiries</h1>
+  <span class="inq-count">{{ inquiries|length }} sent</span>
+</div>
+
+{% if inquiries %}
+  <ul class="inq-list">
+    {% for inquiry in inquiries %}
+      <li class="inq-card">
+
+        <a href="{% url 'properties:house_detail' inquiry.house.pk %}">
+          {% with image=inquiry.house.images.all.0 %}
+            {% if image %}
+              <img src="{{ image.image.url }}" alt="{{ inquiry.house.title }}" loading="lazy">
+            {% else %}
+              <div class="no-photo">No photo</div>
+            {% endif %}
+          {% endwith %}
+        </a>
+
+        <div class="inq-body">
+          <div class="inq-top">
+            <h2>
+              <a href="{% url 'properties:house_detail' inquiry.house.pk %}">{{ inquiry.house.title }}</a>
+            </h2>
+            <span class="status status-{{ inquiry.house.status }}">{{ inquiry.house.get_status_display }}</span>
+          </div>
+
+          <p class="inq-meta">
+            {{ inquiry.house.location.name }} &middot;
+            KSh {{ inquiry.house.rent|floatformat:"0g" }} / month &middot;
+            Sent {{ inquiry.created_at|timesince }} ago
+          </p>
+
+          <p class="bubble">
+            <small>Your message</small>
+            {{ inquiry.message|linebreaksbr }}
+          </p>
+
+          <div class="inq-actions">
+            <a href="{% url 'properties:house_detail' inquiry.house.pk %}">View house</a>
+            {% if inquiry.house.landlord.phone_number %}
+              <a href="tel:{{ inquiry.house.landlord.phone_number }}" class="button">Call landlord</a>
+            {% endif %}
+          </div>
+        </div>
+
+      </li>
+    {% endfor %}
+  </ul>
+
+{% else %}
+  <div class="empty-state">
+    <h2>No inquiries yet</h2>
+    <p>When you message a landlord about a house, it will show up here.</p>
+    <a href="{% url 'properties:house_list' %}" class="button">Find a house</a>
+  </div>
+{% endif %}
+
+{% endblock %}

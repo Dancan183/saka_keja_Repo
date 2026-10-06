@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Saka Keja{% endblock %}</title>
+  <style>
+    :root { --green: #1b7f4b; --dark: #1f2933; --grey: #f3f4f6; --red: #c0392b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; color: var(--dark); background: #fff; line-height: 1.5; }
+    a { color: var(--green); }
+    img { max-width: 100%; display: block; }
+    main { max-width: 1000px; margin: 0 auto; padding: 1rem; }
+
+    /* Navigation */
+    .site-nav { background: var(--dark); }
+    .nav-inner { max-width: 1000px; margin: 0 auto; padding: .6rem 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+    .site-nav a, .site-nav button { color: #fff; text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; padding: 0; }
+    .site-nav a:hover, .site-nav button:hover { text-decoration: underline; }
+    .brand { font-weight: 700; font-size: 1.15rem; margin-right: auto; }
+    .nav-inner form { display: inline; }
+
+    /* Messages */
+    .messages { list-style: none; margin: 0 0 1rem; padding: 0; }
+    .messages li { padding: .7rem 1rem; border-radius: 6px; margin-bottom: .5rem; background: var(--grey); }
+    .messages .success { background: #e3f6ec; color: #11522f; }
+    .messages .error { background: #fde8e6; color: #7a1f16; }
+
+    /* Forms and buttons */
+    .field { margin-bottom: .9rem; }
+    .field label { display: block; font-weight: 600; margin-bottom: .2rem; }
+    input[type=text], input[type=number], input[type=email], input[type=password], input[type=tel], select, textarea { width: 100%; max-width: 420px; padding: .5rem; border: 1px solid #c4c9d0; border-radius: 6px; font: inherit; }
+    .errorlist { color: var(--red); list-style: none; padding: 0; margin: .2rem 0; }
+    .help { color: #6b7280; display: block; }
+    button, .button { background: var(--green); color: #fff; border: 0; border-radius: 6px; padding: .5rem 1rem; font: inherit; cursor: pointer; text-decoration: none; display: inline-block; }
+    button.danger { background: var(--red); }
+    .search-form { display: flex; flex-wrap: wrap; gap: .8rem; align-items: flex-end; background: var(--grey); padding: 1rem; border-radius: 8px; }
+    .search-form .field { margin: 0; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
+
+    /* Houses */
+    .house-grid, .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+    .house-card, .inquiry { border: 1px solid #e5e7eb; border-radius: 8px; padding: .8rem; }
+    .house-card img, .photo img, .gallery img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .6rem; margin: 1rem 0; }
+    .no-photo { height: 180px; background: var(--grey); display: grid; place-items: center; color: #6b7280; border-radius: 6px; }
+    .house-card h2, .inquiry h2 { font-size: 1.05rem; margin: .5rem 0 .2rem; }
+    .rent { font-weight: 700; font-size: 1.1rem; margin: .2rem 0; }
+    .card-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+    .status { display: inline-block; padding: .1rem .6rem; border-radius: 99px; font-size: .85rem; background: var(--grey); }
+    .status-vacant { background: #e3f6ec; color: #11522f; }
+    .status-occupied { background: #fde8e6; color: #7a1f16; }
+
+    /* Inquiries */
+    .inquiry-list { list-style: none; padding: 0; display: grid; gap: .8rem; }
+    .inquiry.unread { border-left: 5px solid var(--green); background: #f6fbf8; }
+    .badge { background: var(--green); color: #fff; border-radius: 99px; font-size: .75rem; padding: .1rem .6rem; vertical-align: middle; }
+    .pagination { display: flex; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="{% url 'properties:home' %}" class="brand">Saka Keja</a>
+
+    <a href="{% url 'properties:house_list' %}">Find a house</a>
+
+    {% if user.is_authenticated %}
+      {% if user.is_landlord %}
+        <a href="{% url 'properties:my_houses' %}">My houses</a>
+        <a href="{% url 'properties:house_create' %}">Add a house</a>
+        <a href="{% url 'inquiries:inbox' %}">
+          Inquiries{% if unread_inquiries %} <span class="badge">{{ unread_inquiries }}</span>{% endif %}
+        </a>
+      {% else %}
+        <a href="{% url 'inquiries:sent' %}">My inquiries</a>
+      {% endif %}
+
+      <span>Hi, {{ user.username }}</span>
+
+      {# Logout must be a POST form in current Django versions #}
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+      </form>
+    {% else %}
+      <a href="{% url 'accounts:register' %}?role=landlord">List your house</a>
+      <a href="{% url 'accounts:login' %}">Login</a>
+      <a href="{% url 'accounts:register' %}">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main>
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

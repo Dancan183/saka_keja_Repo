@@ -1,0 +1,126 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Send an inquiry | Saka Keja{% endblock %}
+
+{% block content %}
+
+<style>
+  .inquiry-page { display: grid; grid-template-columns: 1fr; gap: 1.2rem; align-items: start; }
+  @media (min-width: 800px) { .inquiry-page { grid-template-columns: 340px 1fr; } }
+  .back-link { display: inline-block; margin-bottom: .8rem; text-decoration: none; }
+  .panel { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .panel-body { padding: 1.1rem; }
+  .house-summary img, .house-summary .no-photo { width: 100%; height: 200px; object-fit: cover; border-radius: 0; }
+  .house-summary h2 { font-size: 1.1rem; margin: 0 0 .3rem; }
+  .house-summary .rent { color: var(--green); font-size: 1.3rem; margin: .4rem 0; }
+  .spec-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+  .spec { background: var(--grey); border-radius: 99px; padding: .15rem .7rem; font-size: .85rem; }
+  .landlord-line { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid #e5e7eb; font-size: .9rem; color: #4b5563; }
+  .inquiry-card h1 { font-size: 1.5rem; margin: 0 0 .2rem; }
+  .inquiry-card .sub { color: #6b7280; margin: 0 0 1.1rem; }
+  .inquiry-card textarea, .inquiry-card input[type=text], .inquiry-card input[type=tel] { max-width: 100%; }
+  .inquiry-card textarea { min-height: 130px; resize: vertical; }
+  .quick-label { font-size: .85rem; color: #6b7280; margin: 0 0 .4rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+  .chip { background: #fff; color: var(--green); border: 1px solid var(--green); border-radius: 99px; padding: .25rem .8rem; font-size: .85rem; cursor: pointer; }
+  .chip:hover { background: #e3f6ec; }
+  .form-actions { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin-top: 1.2rem; }
+  .form-actions button { flex: 1 1 200px; padding: .75rem 1rem; font-weight: 600; }
+  .privacy-note { margin-top: 1rem; font-size: .85rem; color: #6b7280; background: var(--grey); border-radius: 8px; padding: .6rem .8rem; }
+</style>
+
+<a href="{% url 'properties:house_detail' house.pk %}" class="back-link">&laquo; Back to the house</a>
+
+<div class="inquiry-page">
+
+  <!-- House summary -->
+  <aside class="panel house-summary">
+    {% with image=house.images.all.0 %}
+      {% if image %}
+        <img src="{{ image.image.url }}" alt="{{ house.title }}">
+      {% else %}
+        <div class="no-photo">No photo</div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="panel-body">
+      <h2>{{ house.title }}</h2>
+      <p class="location">{{ house.location.name }}</p>
+      <p class="rent">KSh {{ house.rent|floatformat:"0g" }} / month</p>
+
+      <div class="spec-row">
+        <span class="spec">{{ house.bedrooms }} bed</span>
+        <span class="spec">{{ house.bathrooms }} bath</span>
+        <span class="spec">{{ house.get_house_type_display }}</span>
+        <span class="status status-{{ house.status }}">{{ house.get_status_display }}</span>
+      </div>
+
+      <p class="landlord-line">
+        Listed by <strong>{{ house.landlord.get_full_name|default:house.landlord.username }}</strong>
+      </p>
+    </div>
+  </aside>
+
+  <!-- Inquiry form -->
+  <section class="panel inquiry-card">
+    <div class="panel-body">
+      <h1>Send an inquiry</h1>
+      <p class="sub">Tell the landlord what you'd like to know. They'll contact you directly.</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="field">
+          <label for="{{ form.message.id_for_label }}">Your message</label>
+
+          <p class="quick-label">Tap to add a quick question:</p>
+          <div class="chips">
+            <button type="button" class="chip" data-text="Is this house still available?">Still available?</button>
+            <button type="button" class="chip" data-text="When can I come to view it?">When can I view?</button>
+            <button type="button" class="chip" data-text="Is water and electricity included in the rent?">Water &amp; power?</button>
+            <button type="button" class="chip" data-text="How much is the deposit?">Deposit?</button>
+          </div>
+
+          {{ form.message }}
+          {{ form.message.errors }}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.phone_number.id_for_label }}">Your phone number</label>
+          {{ form.phone_number }}
+          {% if form.phone_number.help_text %}
+            <small class="help">{{ form.phone_number.help_text }}</small>
+          {% endif %}
+          {{ form.phone_number.errors }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit">Send inquiry</button>
+          <a href="{% url 'properties:house_detail' house.pk %}">Cancel</a>
+        </div>
+      </form>
+
+      <p class="privacy-note">
+        Your name, message and phone number are shared only with the landlord of this house.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Quick-question chips add text to the message box.
+  (function () {
+    var box = document.getElementById("{{ form.message.id_for_label }}");
+    document.querySelectorAll(".chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var text = chip.dataset.text;
+        box.value = box.value.trim() ? box.value.trim() + " " + text : text;
+        box.focus();
+      });
+    });
+  })();
+</script>
+
+{% endblock %}

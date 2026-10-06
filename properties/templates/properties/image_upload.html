@@ -1,0 +1,51 @@
+{% extends "properties/base.html" %}
+
+{% block content %}
+
+<p><a href="{% url 'properties:my_houses' %}">&laquo; Back to my houses</a></p>
+
+<h1>Photos for {{ house.title }}</h1>
+
+<form method="post" enctype="multipart/form-data" class="upload-form">
+  {% csrf_token %}
+
+  {{ form.non_field_errors }}
+
+  <div class="field">
+    <label for="{{ form.image.id_for_label }}">Choose a photo</label>
+    {{ form.image }}
+    {{ form.image.errors }}
+  </div>
+
+  <button type="submit">Upload photo</button>
+</form>
+
+<section class="current-photos">
+  <h2>Uploaded photos ({{ images|length }})</h2>
+
+  {% if images %}
+    <div class="photo-grid">
+      {% for image in images %}
+        <figure class="photo">
+          <img src="{{ image.image.url }}" alt="{{ house.title }} photo {{ forloop.counter }}" loading="lazy">
+
+          <form method="post"
+                action="{% url 'properties:image_delete' image.pk %}"
+                onsubmit="return confirm('Delete this photo?');">
+            {% csrf_token %}
+            <button type="submit" class="danger">Delete</button>
+          </form>
+        </figure>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty">No photos yet. Houses with photos get more inquiries.</p>
+  {% endif %}
+</section>
+
+<p class="actions">
+  <a href="{% url 'properties:house_detail' house.pk %}" class="button">Done, view listing</a>
+  <a href="{% url 'properties:house_update' house.pk %}">Edit house details</a>
+</p>
+
+{% endblock %}
