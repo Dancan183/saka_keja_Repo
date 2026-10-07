@@ -25,6 +25,8 @@
   <button type="submit">Login</button>
 </form>
 
+<p><a href="{% url 'accounts:password_reset' %}">Forgot your password?</a></p>
+<p>Registered but didn't enter your code? <a href="{% url 'accounts:verify_email' %}">Verify your email</a></p>
 <p>No account yet? <a href="{% url 'accounts:register' %}">Register</a></p>
 
 {% endblock %}

@@ -1,0 +1,38 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Verify your email | Saka Keja{% endblock %}
+
+{% block content %}
+
+<h1>Verify your email</h1>
+<p>Enter the 6-digit code we sent to your email. It expires in 10 minutes.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {{ form.non_field_errors }}
+
+  <div class="field">
+    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+    {{ form.email }}
+    {{ form.email.errors }}
+  </div>
+
+  <div class="field">
+    <label for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+    {{ form.code }}
+    {{ form.code.errors }}
+  </div>
+
+  <button type="submit">Verify</button>
+
+  {# Sends the email field to the resend view instead; the code box is ignored #}
+  <button type="submit" formaction="{% url 'accounts:resend_code' %}" formnovalidate class="btn-outline"
+          style="background:#fff;color:var(--green);border:1px solid var(--green);">
+    Send a new code
+  </button>
+</form>
+
+<p class="help">Can't find it? Check your spam folder. You can ask for a new code once a minute.</p>
+
+{% endblock %}

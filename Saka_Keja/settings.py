@@ -155,11 +155,31 @@ if os.environ.get("S3_BUCKET"):
 
 
 # ---------- Email ----------
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Django 6.1 uses MAILERS instead of the old EMAIL_* settings.
+# Locally (no EMAIL_HOST set) emails are printed in the terminal, so you can
+# read OTP codes and reset links there. In production set the EMAIL_* variables
+# in Vercel to send real email through an SMTP service.
+if os.environ.get("EMAIL_HOST"):
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+            "OPTIONS": {
+                "host": os.environ["EMAIL_HOST"],
+                "port": int(os.environ.get("EMAIL_PORT", "587")),
+                "username": os.environ["EMAIL_HOST_USER"],
+                "password": os.environ["EMAIL_HOST_PASSWORD"],
+                "use_tls": True,
+            },
+        },
+    }
+else:
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.console.EmailBackend",
+        },
+    }
+
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Saka Keja <noreply@sakakeja.co.ke>")
 
 
 # ---------- Accounts ----------
