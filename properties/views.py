@@ -3,14 +3,13 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Count, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .forms import HouseForm, HouseImageForm, HouseSearchForm
-from .models import House, HouseImage
-from django.db.models import Count, Q
-from .models import Location
+from .models import House, HouseImage, Location
 
 
 def landlord_required(view_func):
@@ -36,7 +35,19 @@ def house_list(request):
         .prefetch_related("images")
     )
 
-    form = HouseSearchForm(request.GET or None)
+    # The landing page sends one "price_range" value like "5000-10000".
+    # Turn it into min_rent / max_rent so the normal rent filters (and the
+    # fields shown on the results page) stay in sync.
+    params = request.GET.copy()
+    price_range = params.get("price_range", "")
+    if price_range and not params.get("min_rent") and not params.get("max_rent"):
+        low, _, high = price_range.partition("-")
+        if low.isdigit():
+            params["min_rent"] = low
+        if high.isdigit():
+            params["max_rent"] = high
+
+    form = HouseSearchForm(params or None)
     if form.is_valid():
         data = form.cleaned_data
         if data["location"]:
@@ -48,6 +59,10 @@ def house_list(request):
         if data["bedrooms"] is not None:
             # use bedrooms__gte for "at least" instead of an exact match
             houses = houses.filter(bedrooms=data["bedrooms"])
+        if data["bathrooms"] is not None:
+            houses = houses.filter(bathrooms__gte=data["bathrooms"])
+        if data["house_type"]:
+            houses = houses.filter(house_type=data["house_type"])
 
     page_obj = Paginator(houses, 12).get_page(request.GET.get("page"))
 
@@ -159,23 +174,20 @@ def image_delete(request, pk):
     messages.success(request, "Photo deleted.")
     return redirect("properties:image_upload", pk=house_pk)
 
+
+# ---------- Landing page ----------
+
 def home(request):
     vacant = House.objects.filter(status=House.Status.VACANT)
-    return render(request, "properties/home.html", {
-        "form": HouseSearchForm(),
-        "vacant_count": vacant.count(),
-        "latest_houses": vacant.select_related("location").prefetch_related("images")[:6],
-        "areas": Location.objects.annotate(
-            vacant=Count("houses", filter=Q(houses__status=House.Status.VACANT))
-        ),
-    })
-
-@landlord_required
-def my_houses(request):
-    houses = (
-        House.objects.filter(landlord=request.user)
-        .select_related("location")
-        .prefetch_related("images")
-        .annotate(unread=Count("inquiries", filter=Q(inquiries__is_read=False)))
+    return render(
+        request,
+        "properties/home.html",
+        {
+            "form": HouseSearchForm(),
+            "vacant_count": vacant.count(),
+            "latest_houses": vacant.select_related("location").prefetch_related("images")[:6],
+            "areas": Location.objects.annotate(
+                vacant=Count("houses", filter=Q(houses__status=House.Status.VACANT))
+            ),
+        },
     )
-    return render(request, "properties/my_houses.html", {"houses": houses})

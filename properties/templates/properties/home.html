@@ -1,14 +1,114 @@
 {% extends "properties/base.html" %}
+{% load static %}
 
 {% block title %}Saka Keja | Find a house in Murang'a{% endblock %}
+
+{% block hero %}
+<section class="hx">
+  <div class="hx-inner">
+
+    <div class="hx-text">
+      <h1>
+        <span class="hx-l1">Find Your Dream Home</span>
+        <span class="hx-l2">Live Your Best Life</span>
+      </h1>
+      <p class="hx-lead">
+        Explore verified properties in Murang'a, compare real rents and photos, and message landlords directly.
+        {{ vacant_count }} home{{ vacant_count|pluralize }} available right now.
+      </p>
+
+      <div class="hx-buttons">
+        <a href="{% url 'properties:house_list' %}" class="button">Explore Properties</a>
+        <a href="#how-it-works" class="hx-btn-outline">How It Works</a>
+      </div>
+
+      <div class="hx-trust">
+        <div class="hx-avatars">
+          {% include "properties/_avatar.html" with initials="WM" size="av-sm" src="properties/img/clients/client1.jpg" %}
+          {% include "properties/_avatar.html" with initials="BK" size="av-sm" src="properties/img/clients/client2.jpg" %}
+          {% include "properties/_avatar.html" with initials="FN" size="av-sm" src="properties/img/clients/client3.jpg" %}
+          {% include "properties/_avatar.html" with initials="JO" size="av-sm" src="properties/img/clients/client4.jpg" %}
+        </div>
+        <span>Trusted by <strong>10,000+</strong> happy clients</span>
+      </div>
+    </div>
+
+    {# Put a large house photo at properties/static/properties/img/hero-house.jpg #}
+    <div class="hx-visual">
+      <img src="{% static 'properties/img/hero-house.jpg' %}" alt="" onerror="this.remove()">
+      {% if latest_houses %}
+        {% with house=latest_houses.0 %}
+          <a class="hx-card" href="{% url 'properties:house_detail' house.pk %}">
+            <span class="hx-card-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+            <span>
+              <strong>{{ house.title }}</strong>
+              <small><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ house.location.name }}</small>
+              <em>KSh {{ house.rent|floatformat:"0g" }} / month</em>
+            </span>
+          </a>
+        {% endwith %}
+      {% else %}
+        <div class="hx-card">
+          <span class="hx-card-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+          <span>
+            <strong>Modern Family Home</strong>
+            <small><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Murang'a Town</small>
+            <em>KSh 15,000 / month</em>
+          </span>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <form method="get" action="{% url 'properties:house_list' %}" class="hx-search">
+    <div class="field">
+      <label for="{{ form.location.id_for_label }}"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>Location</label>
+      {{ form.location }}
+    </div>
+    <div class="field">
+      <label for="{{ form.house_type.id_for_label }}"><i class="fa-solid fa-building" aria-hidden="true"></i>Property type</label>
+      {{ form.house_type }}
+    </div>
+    <div class="field">
+      <label for="id_price_range"><i class="fa-solid fa-tag" aria-hidden="true"></i>Price range</label>
+      <select name="price_range" id="id_price_range">
+        <option value="">Any price</option>
+        <option value="0-5000">Under KSh 5,000</option>
+        <option value="5000-10000">KSh 5,000 - 10,000</option>
+        <option value="10000-20000">KSh 10,000 - 20,000</option>
+        <option value="20000-">Above KSh 20,000</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="{{ form.bedrooms.id_for_label }}"><i class="fa-solid fa-bed" aria-hidden="true"></i>Bedrooms</label>
+      <select name="bedrooms" id="{{ form.bedrooms.id_for_label }}">
+        <option value="">Any</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="{{ form.bathrooms.id_for_label }}"><i class="fa-solid fa-bath" aria-hidden="true"></i>Bathrooms</label>
+      <select name="bathrooms" id="{{ form.bathrooms.id_for_label }}">
+        <option value="">Any</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+      </select>
+    </div>
+    <button type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search Properties</button>
+  </form>
+
+  <div class="hx-gap"></div>
+</section>
+{% endblock %}
 
 {% block content %}
 
 <style>
-  .hero { background: linear-gradient(135deg, #1b7f4b, #145c37); color: #fff; padding: 2.5rem 1rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; }
-  .hero h1 { margin: 0 0 .5rem; font-size: clamp(1.6rem, 5vw, 2.4rem); }
-  .hero p { margin: 0; opacity: .95; }
-  .hero .search-form { background: #fff; color: var(--dark); margin-top: 1.4rem; text-align: left; justify-content: center; }
   .home-section { margin: 2.5rem 0; }
   .home-section > h2 { margin-bottom: .8rem; }
   .section-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; }
@@ -22,34 +122,64 @@
   .step .num { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; margin-bottom: .4rem; }
   .cta-band { background: var(--dark); color: #fff; border-radius: 12px; padding: 1.8rem 1rem; text-align: center; }
   .cta-band .button { background: #fff; color: var(--dark); margin: .3rem; }
-  .site-footer { text-align: center; color: #6b7280; padding: 2rem 0 1rem; font-size: .9rem; }
+
+  /* Hero */
+  .hx { background: linear-gradient(180deg, #f3faf6 0%, #fff 100%); padding: 2.5rem 1rem 0; }
+  .hx-inner { max-width: 1100px; margin: 0 auto; padding-bottom: 3.2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 2.5rem; align-items: center; }
+  .hx h1 { margin: 0 0 1rem; font-size: clamp(2rem, 4.4vw, 3rem); line-height: 1.12; }
+  .hx-l1 { display: block; color: var(--dark); }
+  .hx-l2 { display: block; color: var(--green); }
+  .hx-lead { font-size: 1.05rem; color: #4b5563; max-width: 34rem; margin: 0 0 1.5rem; }
+  .hx-buttons { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 1.8rem; }
+  .hx-buttons .button, .hx-btn-outline { padding: .8rem 1.5rem; border-radius: 8px; font-weight: 600; }
+  .hx-btn-outline { border: 2px solid var(--green); color: var(--green); text-decoration: none; display: inline-block; }
+  .hx-btn-outline:hover { background: var(--green); color: #fff; }
+  .hx-trust { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+  .hx-avatars { display: flex; }
+  .hx-avatars .av + .av { margin-left: -.6rem; }
+  .hx-trust span { color: #4b5563; font-size: .92rem; }
+  .hx-visual { position: relative; min-height: 420px; border-radius: 24px; overflow: hidden; background: linear-gradient(135deg, #2f7d57, #0f3d2a); }
+  .hx-visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hx-card { position: absolute; z-index: 1; left: 1.2rem; bottom: 1.2rem; display: flex; align-items: center; gap: .8rem; background: #fff; color: var(--dark); text-decoration: none; padding: .8rem 1rem; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); max-width: calc(100% - 2.4rem); }
+  .hx-card-icon { width: 2.6rem; height: 2.6rem; border-radius: 10px; background: #e3f6ec; color: var(--green); display: grid; place-items: center; font-size: 1.1rem; flex: none; }
+  .hx-card strong { display: block; line-height: 1.2; }
+  .hx-card small { display: block; color: #6b7280; }
+  .hx-card em { font-style: normal; color: var(--green); font-weight: 700; }
+
+  /* Search panel */
+  .hx-search { position: relative; z-index: 2; max-width: 1100px; margin: -2.2rem auto 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.2rem; box-shadow: 0 10px 30px rgba(15,61,42,.12); display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: .9rem; align-items: end; }
+  .hx-search .field { margin: 0; min-width: 0; }
+  .hx-search .field label { font-size: .8rem; color: #6b7280; font-weight: 600; }
+  .hx-search .field label i { color: var(--green); margin-right: .3rem; }
+  .hx-search select, .hx-search input { max-width: none; padding: .65rem .6rem; }
+  .hx-search button { padding: .8rem 1.4rem; font-weight: 600; border-radius: 8px; white-space: nowrap; }
+  .hx-gap { height: 1.5rem; }
+
+  /* Testimonials */
+  .tt-head { text-align: center; margin-bottom: 1.4rem; }
+  .tt-head h2 { margin: 0 0 .3rem; }
+  .tt-head p { margin: 0; color: #6b7280; }
+  .tt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+  .tt-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1.4rem; display: flex; flex-direction: column; gap: 1rem; }
+  .tt-quote { color: var(--green); font-size: 1.6rem; opacity: .85; }
+  .tt-text { margin: 0; color: #374151; flex: 1; }
+  .tt-person { display: flex; align-items: center; gap: .8rem; }
+  .tt-person strong { display: block; line-height: 1.2; }
+  .tt-person span { color: #6b7280; font-size: .9rem; }
+  .tt-stars { color: var(--star); font-size: .95rem; display: flex; gap: .15rem; }
+
+  @media (max-width: 900px) {
+    .hx-inner { grid-template-columns: 1fr; }
+    .hx-visual { min-height: 300px; order: -1; }
+    .hx-search { grid-template-columns: repeat(2, 1fr); margin-top: -1.5rem; }
+    .hx-search button { grid-column: 1 / -1; }
+    .tt-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .hx-search { grid-template-columns: 1fr; }
+    .hx-buttons .button, .hx-btn-outline { flex: 1 1 100%; text-align: center; }
+  }
 </style>
-
-<!-- 1. Hero + search -->
-<section class="hero">
-  <h1>Find your next home in Murang'a</h1>
-  <p>{{ vacant_count }} house{{ vacant_count|pluralize }} available now. Search by area, rent and bedrooms.</p>
-
-  <form method="get" action="{% url 'properties:house_list' %}" class="search-form">
-    <div class="field">
-      <label for="{{ form.location.id_for_label }}">Location</label>
-      {{ form.location }}
-    </div>
-    <div class="field">
-      <label for="{{ form.min_rent.id_for_label }}">Min rent (KSh)</label>
-      {{ form.min_rent }}
-    </div>
-    <div class="field">
-      <label for="{{ form.max_rent.id_for_label }}">Max rent (KSh)</label>
-      {{ form.max_rent }}
-    </div>
-    <div class="field">
-      <label for="{{ form.bedrooms.id_for_label }}">Bedrooms</label>
-      {{ form.bedrooms }}
-    </div>
-    <button type="submit">Search houses</button>
-  </form>
-</section>
 
 <!-- 2. Browse by area -->
 {% if areas %}
@@ -101,7 +231,7 @@
 </section>
 
 <!-- 4. How it works -->
-<section class="home-section">
+<section class="home-section" id="how-it-works">
   <h2>How it works</h2>
   <div class="steps">
     <div class="step">
@@ -119,6 +249,64 @@
       <h3>Go and view</h3>
       <p>Visit only the houses that match what you want, and save time and transport.</p>
     </div>
+  </div>
+</section>
+
+<!-- 4b. Client feedback -->
+<section class="home-section">
+  <div class="tt-head">
+    <h2>What Our Clients Say</h2>
+    <p>Real stories from people who found their home with us.</p>
+  </div>
+
+  {# SAMPLE TEXT: replace these three reviews, names and photos with real ones before launch. #}
+  <div class="tt-grid">
+
+    <article class="tt-card">
+      <i class="fa-solid fa-quote-left tt-quote" aria-hidden="true"></i>
+      <p class="tt-text">I found a 2 bedroom house in Mukuyu in one afternoon. The photos matched the real place and the landlord replied the same day.</p>
+      <div class="tt-person">
+        {% include "properties/_avatar.html" with initials="WM" size="av-md" src="properties/img/clients/client1.jpg" %}
+        <div>
+          <strong>Wanjiru M.</strong>
+          <span>Murang'a Town</span>
+        </div>
+      </div>
+      <div class="tt-stars" aria-label="5 out of 5 stars">
+        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+      </div>
+    </article>
+
+    <article class="tt-card">
+      <i class="fa-solid fa-quote-left tt-quote" aria-hidden="true"></i>
+      <p class="tt-text">Listing my vacant houses was quick, and the inquiries come straight to my inbox. My bedsitters no longer stay empty for months.</p>
+      <div class="tt-person">
+        {% include "properties/_avatar.html" with initials="BK" size="av-md" src="properties/img/clients/client2.jpg" %}
+        <div>
+          <strong>Brian K.</strong>
+          <span>Landlord, Mjini</span>
+        </div>
+      </div>
+      <div class="tt-stars" aria-label="5 out of 5 stars">
+        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+      </div>
+    </article>
+
+    <article class="tt-card">
+      <i class="fa-solid fa-quote-left tt-quote" aria-hidden="true"></i>
+      <p class="tt-text">Filtering by area and rent saved me a lot of walking and transport money. I only visited houses I could actually afford.</p>
+      <div class="tt-person">
+        {% include "properties/_avatar.html" with initials="FN" size="av-md" src="properties/img/clients/client3.jpg" %}
+        <div>
+          <strong>Faith N.</strong>
+          <span>Area 4, Murang'a</span>
+        </div>
+      </div>
+      <div class="tt-stars" aria-label="5 out of 5 stars">
+        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+      </div>
+    </article>
+
   </div>
 </section>
 
@@ -145,8 +333,6 @@
   {% endif %}
 </section>
 
-<footer class="site-footer">
-  Dropuration Tech Solutions &middot; Murang'a, Kenya
-</footer>
+
 
 {% endblock %}

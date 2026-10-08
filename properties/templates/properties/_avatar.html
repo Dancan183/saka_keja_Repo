@@ -1,0 +1,1 @@
+{% load static %}<span class="av {{ size|default:'av-sm' }}"><b>{{ initials }}</b>{% if src %}<img src="{% static src %}" alt="" loading="lazy" onerror="this.remove()">{% endif %}</span>

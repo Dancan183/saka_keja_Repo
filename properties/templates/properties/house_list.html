@@ -30,6 +30,17 @@
     {{ form.bedrooms.errors }}
   </div>
 
+  <div class="field">
+    <label for="{{ form.bathrooms.id_for_label }}">Bathrooms (at least)</label>
+    {{ form.bathrooms }}
+    {{ form.bathrooms.errors }}
+  </div>
+
+  <div class="field">
+    <label for="{{ form.house_type.id_for_label }}">Property type</label>
+    {{ form.house_type }}
+  </div>
+
   <button type="submit">Search</button>
   <a href="{% url 'properties:house_list' %}">Clear</a>
 </form>

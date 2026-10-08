@@ -4,7 +4,7 @@ from .models import House, HouseImage, Location
 
 
 class HouseSearchForm(forms.Form):
-    """Tenant search: location, min rent, max rent, bedrooms."""
+    """Tenant search: location, rent range, bedrooms, bathrooms, property type."""
 
     location = forms.ModelChoiceField(
         queryset=Location.objects.all(),
@@ -14,6 +14,11 @@ class HouseSearchForm(forms.Form):
     min_rent = forms.IntegerField(required=False, min_value=0)
     max_rent = forms.IntegerField(required=False, min_value=0)
     bedrooms = forms.IntegerField(required=False, min_value=0)
+    bathrooms = forms.IntegerField(required=False, min_value=0)
+    house_type = forms.ChoiceField(
+        choices=[("", "Any type")] + list(House.HouseType.choices),
+        required=False,
+    )
 
     def clean(self):
         cleaned = super().clean()

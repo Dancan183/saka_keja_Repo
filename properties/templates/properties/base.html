@@ -4,20 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Saka Keja{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root { --green: #1b7f4b; --dark: #1f2933; --grey: #f3f4f6; --red: #c0392b; }
+    :root { --green: #1b7f4b; --dark: black; --grey: #f3f4f6; --red: #c0392b; --forest: #0f3d2a; --star: #f5b301; }
+    html { scroll-behavior: smooth; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, sans-serif; color: var(--dark); background: #fff; line-height: 1.5; }
+    body { margin: 0; font-family: system-ui, sans-serif; color: var(--dark); background: #fff; line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
     a { color: var(--green); }
     img { max-width: 100%; display: block; }
-    main { max-width: 1000px; margin: 0 auto; padding: 1rem; }
+    main { max-width: 1000px; width: 100%; margin: 0 auto; padding: 1rem; flex: 1; }
 
     /* Navigation */
     .site-nav { background: var(--dark); }
     .nav-inner { max-width: 1000px; margin: 0 auto; padding: .6rem 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
     .site-nav a, .site-nav button { color: #fff; text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; padding: 0; }
     .site-nav a:hover, .site-nav button:hover { text-decoration: underline; }
-    .brand { font-weight: 700; font-size: 1.15rem; margin-right: auto; }
+    .brand { font-weight: 700; font-size: 1.15rem; margin-right: auto; display: flex; align-items: center; gap: .5rem; }
+    .brand i{color: #6fcf97;}
     .nav-inner form { display: inline; }
 
     /* Messages */
@@ -56,13 +59,86 @@
     .inquiry.unread { border-left: 5px solid var(--green); background: #f6fbf8; }
     .badge { background: var(--green); color: #fff; border-radius: 99px; font-size: .75rem; padding: .1rem .6rem; vertical-align: middle; }
     .pagination { display: flex; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
+
+    /* Top contact bar */
+    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; font-size: .8rem; color: var(--dark); }
+    .topbar-inner { max-width: 1100px; margin: 0 auto; padding: .45rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .3rem 1.5rem; }
+    .topbar-info, .topbar-social { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem 1.2rem; list-style: none; margin: 0; padding: 0; }
+    .topbar-info li { display: flex; align-items: center; gap: .4rem; }
+    .topbar a { color: inherit; text-decoration: none; }
+    .topbar a:hover { color: var(--green); }
+    .topbar i { color: var(--green); }
+    .topbar-social { gap: .5rem; }
+    .topbar-social span { font-weight: 600; margin-right: .2rem; }
+    .topbar-social a { width: 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 50%; border: 1px solid #e5e7eb; font-size: .75rem; }
+    .topbar-social a:hover { background: var(--green); color: #fff; border-color: var(--green); }
+    @media (max-width: 700px) {
+      .topbar-inner { justify-content: center; text-align: center; }
+      .topbar-info { justify-content: center; }
+      .topbar-address { display: none !important; }
+    }
+
+    /* Avatars (initials show until a photo is added) */
+    .av { position: relative; display: inline-grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; overflow: hidden; flex: none; border: 2px solid #fff; }
+    .av b { font-weight: 700; color: #fff; }
+    .av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .av-sm { width: 2.4rem; height: 2.4rem; font-size: .8rem; }
+    .av-md { width: 3.2rem; height: 3.2rem; font-size: 1rem; }
+
+    /* Footer */
+    .site-footer { background: var(--forest); color: rgba(255,255,255,.72); margin-top: 3rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; padding: 3rem 1rem 1.5rem; }
+    .footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1.4fr; gap: 2rem; }
+    .site-footer h3 { color: #fff; font-size: 1rem; margin: 0 0 1rem; }
+    .site-footer a { color: rgba(255,255,255,.72); text-decoration: none; }
+    .site-footer a:hover { color: #fff; text-decoration: underline; }
+    .site-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+    .footer-logo { display: flex; align-items: center; gap: .6rem; color: #fff; font-weight: 700; font-size: 1.3rem; }
+    .footer-logo i { color: #6fcf97; }
+    .footer-tagline { color: #fff; font-weight: 600; margin: .6rem 0 .3rem; }
+    .footer-brand p { margin: 0 0 1rem; font-size: .92rem; }
+    .footer-social { display: flex; gap: .5rem; margin-bottom: 1.2rem; }
+    .footer-social a { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); color: #fff; }
+    .footer-social a:hover { background: var(--green); border-color: var(--green); text-decoration: none; }
+    .footer-contact li { display: flex; gap: .7rem; align-items: flex-start; }
+    .footer-contact i { color: #6fcf97; margin-top: .25rem; width: 1rem; text-align: center; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.15); margin-top: 2.2rem; padding-top: 1.2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem 1rem; font-size: .85rem; }
+    .footer-bottom .heart { color: #ff7a8a; }
+    @media (max-width: 1000px) { .footer-grid { grid-template-columns: repeat(3, 1fr); } .footer-brand { grid-column: 1 / -1; } }
+    @media (max-width: 640px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-contact-col { grid-column: 1 / -1; } .footer-bottom { justify-content: center; text-align: center; } }
+    @media (max-width: 420px) { .footer-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
+{# EDIT YOUR CONTACT DETAILS HERE. They are used in the top bar and the footer. #}
+{% with site_email="dancannyakundi836@gmail.com" site_phone="+254 798907004" site_phone_link="+254798907004" site_address="Murang'a Town, Kenya" %}
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <ul class="topbar-info">
+      <li><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:{{ site_email }}">{{ site_email }}</a></li>
+      <li><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:{{ site_phone_link }}">{{ site_phone }}</a></li>
+      <li class="topbar-address"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ site_address }}</span></li>
+    </ul>
+    <div class="topbar-social">
+      <span>Follow us:</span>
+      <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+    </div>
+  </div>
+</div>
 
 <nav class="site-nav">
   <div class="nav-inner">
-    <a href="{% url 'properties:home' %}" class="brand">Saka Keja</a>
+    <a href="{% url 'properties:home' %}" class="brand" >
+      <i class="fa-solid fa-house-chimney" aria-hidden="true">Saka Keja</i> 
+
+      <p>Find. Rent. Be happy!</p>
+    </a>
+    
+
 
     <a href="{% url 'properties:house_list' %}">Find a house</a>
 
@@ -92,6 +168,8 @@
   </div>
 </nav>
 
+{% block hero %}{% endblock %}
+
 <main>
   {% if messages %}
     <ul class="messages">
@@ -103,6 +181,83 @@
 
   {% block content %}{% endblock %}
 </main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+
+      <div class="footer-brand">
+        <div class="footer-logo"><i class="fa-solid fa-house-chimney" aria-hidden="true"></i> Saka Keja</div>
+        <p class="footer-tagline">Find. Buy. Live Better.</p>
+        <p>Browse verified homes in Murang'a, see real photos and rents, and message landlords directly.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+        </div>
+      </div>
+
+      <div>
+        <h3>Property Types</h3>
+        <ul>
+          <li><a href="{% url 'properties:house_list' %}">Apartments</a></li>
+          <li><a href="{% url 'properties:house_list' %}">Houses</a></li>
+          <li><a href="{% url 'properties:house_list' %}">Villas</a></li>
+          <li><a href="{% url 'properties:house_list' %}">Condos</a></li>
+          <li><a href="{% url 'properties:house_list' %}">Townhouses</a></li>
+          <li><a href="{% url 'properties:house_list' %}">Land</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Company</h3>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Terms &amp; Conditions</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="{% url 'properties:home' %}">Home</a></li>
+          <li><a href="{% url 'properties:house_list' %}">Find a house</a></li>
+          {% if user.is_authenticated %}
+            {% if user.is_landlord %}
+              <li><a href="{% url 'properties:my_houses' %}">My houses</a></li>
+            {% else %}
+              <li><a href="{% url 'inquiries:sent' %}">My inquiries</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'accounts:login' %}">Login</a></li>
+            <li><a href="{% url 'accounts:register' %}">Register</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="footer-contact-col">
+        <h3>Contact Us</h3>
+        <ul class="footer-contact">
+          <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ site_address }}</span></li>
+          <li><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:{{ site_phone_link }}">{{ site_phone }}</a></li>
+          <li><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:{{ site_email }}">{{ site_email }}</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; {% now "Y" %} Saka Keja. All rights reserved.</span>
+      <span>Designed by <mark> <b>Dropuration Tech Solutions</b></mark> </span>
+    </div>
+  </div>
+</footer>
+
+{% endwith %}
 
 </body>
 </html>
