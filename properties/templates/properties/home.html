@@ -9,7 +9,7 @@
 
     <div class="hx-text">
       <h1>
-        <span class="hx-l1">Find Your Dream Home</span>
+        <span class="hx-l1">Find Your Dream Rental House</span>
         <span class="hx-l2">Live Your Best Life</span>
       </h1>
       <p class="hx-lead">
@@ -18,7 +18,7 @@
       </p>
 
       <div class="hx-buttons">
-        <a href="{% url 'properties:house_list' %}" class="button">Explore Available Houses</a>
+        <a href="{% url 'properties:house_list' %}" class="button">Explore Vacant Rentals</a>
         <a href="#how-it-works" class="hx-btn-outline">How It Works</a>
       </div>
 
@@ -84,6 +84,7 @@
       <label for="{{ form.bedrooms.id_for_label }}"><i class="fa-solid fa-bed" aria-hidden="true"></i>Bedrooms</label>
       <select name="bedrooms" id="{{ form.bedrooms.id_for_label }}">
         <option value="">Any</option>
+        <option value="">0</option>
         <option value="1">1</option>
         <option value="2">2</option>
         <option value="3">3</option>
@@ -94,12 +95,13 @@
       <label for="{{ form.bathrooms.id_for_label }}"><i class="fa-solid fa-bath" aria-hidden="true"></i>Bathrooms</label>
       <select name="bathrooms" id="{{ form.bathrooms.id_for_label }}">
         <option value="">Any</option>
+        <option value="">1</option>
         <option value="1">1+</option>
         <option value="2">2+</option>
         <option value="3">3+</option>
       </select>
     </div>
-    <button type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search Properties</button>
+    <button type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> House Hunt Search </button>
   </form>
 
   <div class="hx-gap"></div>
