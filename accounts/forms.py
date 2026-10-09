@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import UserCreationForm
 
 from .models import User
 
@@ -21,7 +21,7 @@ class RegisterForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(
                 "An account with this email already exists. "
-                "If you never verified it, use the Verify email page to get a new code."
+                "Try logging in, or use 'Forgot your password?'."
             )
         return email
 
@@ -33,27 +33,7 @@ class RegisterForm(UserCreationForm):
         return cleaned
 
 
-class LoginForm(AuthenticationForm):
-    """Gives a clear message to people who registered but never verified their email."""
-
-    def clean(self):
-        try:
-            return super().clean()
-        except forms.ValidationError:
-            username = self.data.get("username", "")
-            password = self.data.get("password", "")
-            user = User.objects.filter(username__iexact=username).first() if username else None
-            if user and not user.is_active and user.check_password(password):
-                raise forms.ValidationError(
-                    "Your email is not verified yet. Use the Verify email link below "
-                    "to enter the code we sent you.",
-                    code="unverified",
-                )
-            raise
-
-
-class VerifyEmailForm(forms.Form):
-    email = forms.EmailField(label="Email")
+class VerifyCodeForm(forms.Form):
     code = forms.CharField(
         label="6-digit code",
         min_length=6,

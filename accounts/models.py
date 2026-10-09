@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -22,18 +23,25 @@ class User(AbstractUser):
         return self.username
 
 
-class EmailOTP(models.Model):
-    """A one-time 6-digit code sent by email. Only a hash of the code is stored."""
+class PendingRegistration(models.Model):
+    """
+    A sign-up that is waiting for its email code.
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="otps")
+    Nothing is written to the User table until the code is verified. This
+    row holds the details temporarily (password already hashed) and is
+    deleted on success or when it expires.
+    """
+
+    token = models.CharField(max_length=64, unique=True)  # also kept in the visitor's session
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150)
+    password_hash = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=15, blank=True)
+    role = models.CharField(max_length=20, choices=User.Role.choices, default=User.Role.TENANT)
     code_hash = models.CharField(max_length=64)
     attempts = models.PositiveSmallIntegerField(default=0)
-    used = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-        indexes = [models.Index(fields=["user", "-created_at"])]
+    code_sent_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"OTP for {self.user} ({self.created_at:%Y-%m-%d %H:%M})"
+        return f"Pending: {self.username} <{self.email}>"
