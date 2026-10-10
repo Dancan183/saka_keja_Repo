@@ -4,8 +4,7 @@ __pycache__/
 .venv/
 venv/
 
-# Secrets and local data (never commit these)
-.env
+# Secrets and local data (never commit these
 .env.local
 db.sqlite3
 
