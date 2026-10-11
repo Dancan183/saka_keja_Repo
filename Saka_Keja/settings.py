@@ -12,6 +12,15 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load settings from a local .env file (next to manage.py) when it exists.
+# Variables already set by the system (for example on Vercel) are never overridden.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(BASE_DIR / ".env")
+except ImportError:
+    pass
+
 
 # ---------- Core ----------
 # On Vercel, set SECRET_KEY and DEBUG=False in Environment Variables.
@@ -168,7 +177,9 @@ if os.environ.get("EMAIL_HOST"):
                 "port": int(os.environ.get("EMAIL_PORT", "587")),
                 "username": os.environ["EMAIL_HOST_USER"],
                 "password": os.environ["EMAIL_HOST_PASSWORD"],
-                "use_tls": True,
+                # Port 587 uses TLS. For port 465 set EMAIL_USE_SSL=True instead.
+                "use_tls": os.environ.get("EMAIL_USE_SSL", "False").lower() != "true",
+                "use_ssl": os.environ.get("EMAIL_USE_SSL", "False").lower() == "true",
             },
         },
     }
@@ -180,6 +191,28 @@ else:
     }
 
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Saka Keja <noreply@sakakeja.co.ke>")
+
+# False only when running for real (DEBUG off) without an SMTP server set up.
+# The sign-up code then reports an honest error instead of pretending to send.
+EMAIL_IS_CONFIGURED = bool(os.environ.get("EMAIL_HOST")) or DEBUG
+
+
+# ---------- SMS (phone verification) ----------
+# Africa's Talking. Credentials come from environment variables, never from code.
+#   AT_USERNAME   your Africa's Talking app username ("sandbox" while testing)
+#   AT_API_KEY    the API key for that app
+#   AT_SENDER_ID  optional approved sender ID or shortcode
+#   AT_BASE_URL   only for the sandbox: https://api.sandbox.africastalking.com
+AT_USERNAME = os.environ.get("AT_USERNAME", "")
+AT_API_KEY = os.environ.get("AT_API_KEY", "")
+AT_SENDER_ID = os.environ.get("AT_SENDER_ID", "")
+AT_BASE_URL = os.environ.get("AT_BASE_URL", "https://api.africastalking.com")
+
+# "africastalking" sends real SMS. "console" (development only) prints the SMS in the
+# runserver terminal. With DEBUG on and no API key we use "console" so you can test locally.
+SMS_BACKEND = os.environ.get("SMS_BACKEND") or (
+    "console" if (DEBUG and not AT_API_KEY) else "africastalking"
+)
 
 
 # ---------- Accounts ----------

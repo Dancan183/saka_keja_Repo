@@ -12,6 +12,11 @@ urlpatterns = [
     # Logout only accepts POST, which is why the nav uses a small form.
     path("logout/", LogoutView.as_view(), name="logout"),
 
+    # Phone verification by SMS (JSON endpoints used by the registration page)
+    path("phone/send/", views.phone_send, name="phone_send"),
+    path("phone/verify/", views.phone_verify, name="phone_verify"),
+    path("phone/reset/", views.phone_reset, name="phone_reset"),
+
     # Email verification (OTP)
     path("verify/", views.verify_email, name="verify_email"),
     path("verify/resend/", views.resend_code, name="resend_code"),

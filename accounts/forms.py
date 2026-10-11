@@ -2,10 +2,19 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import User
+from .phone import normalize_ke_phone
 
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
+    phone_number = forms.CharField(
+        label="Phone number",
+        max_length=20,
+        required=True,
+        widget=forms.TextInput(
+            attrs={"type": "tel", "inputmode": "tel", "autocomplete": "tel", "placeholder": "0712 345 678"}
+        ),
+    )
     role = forms.ChoiceField(
         choices=User.Role.choices,
         label="I am a",
@@ -25,12 +34,12 @@ class RegisterForm(UserCreationForm):
             )
         return email
 
-    def clean(self):
-        cleaned = super().clean()
-        # Landlords must be reachable by tenants.
-        if cleaned.get("role") == User.Role.LANDLORD and not cleaned.get("phone_number"):
-            self.add_error("phone_number", "Landlords must provide a phone number.")
-        return cleaned
+    def clean_phone_number(self):
+        # Stored in international format, e.g. +254712345678
+        phone = normalize_ke_phone(self.cleaned_data["phone_number"])
+        if phone is None:
+            raise forms.ValidationError("Enter a valid Kenyan phone number, for example 0712 345 678.")
+        return phone
 
 
 class VerifyCodeForm(forms.Form):

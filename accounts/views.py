@@ -1,14 +1,19 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from . import phone as phone_service
 from .forms import RegisterForm, VerifyCodeForm
 from .models import PendingRegistration
 from .otp import (
+    PhoneNotVerified,
     can_send_code,
     complete_registration,
     issue_new_code,
@@ -61,11 +66,20 @@ def register(request):
         email = form.cleaned_data["email"]
         existing = PendingRegistration.objects.filter(email=email).first()
 
-        if existing and not can_send_code(existing):
+        # The phone number must have been verified by SMS in THIS browser, for exactly this number.
+        phone_token = request.session.get(phone_service.SESSION_KEY)
+        phone_check = phone_service.verified_row_for(phone_token, form.cleaned_data["phone_number"])
+
+        if phone_check is None:
+            form.add_error(
+                "phone_number",
+                "Please verify this phone number first: press Confirm Phone Number and enter the code we send by SMS.",
+            )
+        elif existing and not can_send_code(existing):
             # Stops email flooding and stops someone overwriting a sign-up in progress.
             form.add_error("email", "A code was just sent to this email. Please wait a minute and try again.")
         else:
-            pending, code = start_registration(form.cleaned_data)
+            pending, code = start_registration(form.cleaned_data, phone_token=phone_check.token)
             sent = send_code_email(pending.email, pending.username, code)
             request.session[SESSION_KEY] = pending.token
 
@@ -78,7 +92,13 @@ def register(request):
                 )
             return redirect("accounts:verify_email")
 
-    return render(request, "accounts/register.html", {"form": form})
+    submitted = phone_service.normalize_ke_phone(request.POST.get("phone_number")) if request.method == "POST" else None
+    verified = phone_service.verified_phone(request)
+    return render(
+        request,
+        "accounts/register.html",
+        {"form": form, "phone_initially_verified": bool(verified and verified == submitted)},
+    )
 
 
 def verify_email(request):
@@ -101,6 +121,15 @@ def verify_email(request):
                 messages.error(
                     request,
                     "That username or email was taken while you were verifying. Please register again.",
+                )
+                return redirect("accounts:register")
+            except PhoneNotVerified:
+                # The SMS verification expired or was already used.
+                pending.delete()
+                request.session.pop(SESSION_KEY, None)
+                messages.error(
+                    request,
+                    "Your phone verification expired. Please register again and verify your phone number.",
                 )
                 return redirect("accounts:register")
 
@@ -134,3 +163,39 @@ def resend_code(request):
     else:
         messages.error(request, "Please wait a minute before asking for another code.")
     return redirect("accounts:verify_email")
+
+
+# ---------- Phone verification (called by the registration page's JavaScript) ----------
+
+def _payload(request):
+    try:
+        data = json.loads(request.body or b"{}")
+        return data if isinstance(data, dict) else {}
+    except ValueError:
+        return request.POST
+
+
+def _phone_response(action, request, *args):
+    try:
+        return JsonResponse(action(request, *args))
+    except phone_service.PhoneError as error:
+        body = {"ok": False, "code": error.code, "message": error.message, **error.extra}
+        return JsonResponse(body, status=error.status)
+
+
+@require_POST
+def phone_send(request):
+    raw = str(_payload(request).get("phone", "")).strip()
+    if not raw:
+        return JsonResponse({"ok": False, "code": "empty", "message": "Enter your phone number first."}, status=400)
+    return _phone_response(phone_service.send_code, request, raw)
+
+
+@require_POST
+def phone_verify(request):
+    return _phone_response(phone_service.verify_code, request, str(_payload(request).get("code", "")))
+
+
+@require_POST
+def phone_reset(request):
+    return JsonResponse(phone_service.reset(request))

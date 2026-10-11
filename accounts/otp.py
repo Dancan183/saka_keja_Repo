@@ -10,7 +10,8 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.utils import timezone
 
-from .models import PendingRegistration, User
+from .models import PendingRegistration, PhoneVerification, User
+from .phone import VERIFIED_LIFETIME
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,11 @@ def can_send_code(pending):
     return timezone.now() - pending.code_sent_at >= RESEND_COOLDOWN
 
 
-def start_registration(data):
+class PhoneNotVerified(Exception):
+    """The phone verification behind a sign-up is missing, used or expired."""
+
+
+def start_registration(data, phone_token=""):
     """
     Store the sign-up details (NOT as a User) and return (pending, plain_code).
     A new sign-up for the same email replaces the old pending one.
@@ -53,6 +58,7 @@ def start_registration(data):
             "password_hash": make_password(data["password1"]),
             "phone_number": data.get("phone_number", ""),
             "role": data["role"],
+            "phone_token": phone_token,
             "code_hash": _hash(code),
             "attempts": 0,
             "code_sent_at": now,
@@ -91,8 +97,27 @@ def verify_code(pending, code):
 
 
 def complete_registration(pending):
-    """Create the real User from the verified sign-up. May raise IntegrityError."""
+    """
+    Create the real User from the verified sign-up.
+    May raise IntegrityError, or PhoneNotVerified when the phone check is gone.
+    """
     with transaction.atomic():
+        phone_check = (
+            PhoneVerification.objects.select_for_update()
+            .filter(
+                token=pending.phone_token or "-",
+                phone=pending.phone_number,
+                verified_at__isnull=False,
+                consumed_at__isnull=True,
+                verified_at__gt=timezone.now() - VERIFIED_LIFETIME,
+            )
+            .first()
+        )
+        if phone_check is None:
+            raise PhoneNotVerified()
+        phone_check.consumed_at = timezone.now()  # a verification can be used once
+        phone_check.save(update_fields=["consumed_at"])
+
         user = User(
             username=pending.username,
             email=pending.email,
@@ -112,6 +137,10 @@ def mask_email(email):
 
 def send_code_email(email, username, code):
     """Email the code. Returns True if it was handed to the mail server."""
+    if not getattr(settings, "EMAIL_IS_CONFIGURED", True):
+        logger.error("EMAIL_HOST is not set, so the verification email was NOT sent.")
+        return False
+
     minutes = int(OTP_LIFETIME.total_seconds() // 60)
     message = (
         f"Hello {username},\n\n"
