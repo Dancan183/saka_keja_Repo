@@ -1,0 +1,11 @@
+{% load review_extras %}
+<p class="rv-summary">
+  {% if stats.count %}
+    {% stars stats.average %}
+    <strong>{{ stats.average }}</strong>
+    <span>({{ stats.count }} review{{ stats.count|pluralize }})</span>
+  {% else %}
+    <span>No reviews yet</span>
+  {% endif %}
+  <a href="{{ profile_url }}">View landlord profile</a>
+</p>

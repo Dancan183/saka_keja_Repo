@@ -1,0 +1,58 @@
+{% extends "properties/base.html" %}
+
+{% block title %}{% if editing %}Edit{% else %}Write{% endif %} a review | Saka Keja{% endblock %}
+
+{% block content %}
+{% include "reviews/_styles.html" %}
+
+<p>
+  <a href="{% if person.is_landlord %}{% url 'reviews:landlord_profile' person.pk %}{% else %}{% url 'reviews:my_reviews' %}{% endif %}">&laquo; Back</a>
+</p>
+
+<h1>{% if editing %}Edit your review{% else %}Write a review{% endif %}</h1>
+
+<div class="rv-card rv-head" style="margin-bottom:1rem;">
+  <span class="rv-avatar">{{ person.username|slice:":1"|upper }}</span>
+  <div>
+    <strong>{{ person.get_full_name|default:person.username }}</strong><br>
+    <span class="rv-muted">
+      {% if person.is_landlord %}Landlord{% else %}Tenant{% endif %}
+      {% if house %}&middot; about {{ house.title }}{% endif %}
+    </span>
+  </div>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+
+  <fieldset class="star-input">
+    <legend>Your rating</legend>
+    <div class="star-row">
+      {% for radio in form.rating %}
+        {{ radio.tag }}
+        <label for="{{ radio.id_for_label }}" title="{{ radio.choice_label }} star{{ radio.choice_label|pluralize }}">
+          <i class="fa-solid fa-star" aria-hidden="true"></i>
+          <span class="sr-only">{{ radio.choice_label }} star{{ radio.choice_label|pluralize }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    {{ form.rating.errors }}
+  </fieldset>
+
+  <div class="field">
+    <label for="{{ form.comment.id_for_label }}">Your comment <span class="rv-muted">(optional, up to 500 characters)</span></label>
+    {{ form.comment }}
+    {{ form.comment.errors }}
+  </div>
+
+  <p class="rv-muted">
+    Be honest and fair. Reviews that are fake, abusive or share private details can be reported and removed.
+    {% if not person.is_landlord %}Reviews about tenants are private to the tenant and the landlords they contact.{% endif %}
+  </p>
+
+  <button type="submit">{% if editing %}Save changes{% else %}Post review{% endif %}</button>
+  <a href="{% if person.is_landlord %}{% url 'reviews:landlord_profile' person.pk %}{% else %}{% url 'reviews:my_reviews' %}{% endif %}">Cancel</a>
+</form>
+
+{% endblock %}

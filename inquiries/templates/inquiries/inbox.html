@@ -70,6 +70,9 @@
             <a href="mailto:{{ inquiry.tenant.email }}" class="button btn-outline">Email</a>
           {% endif %}
 
+          <a href="{% url 'reviews:tenant_profile' inquiry.tenant_id %}" class="button btn-outline">Tenant reviews</a>
+          <a href="{% url 'reviews:write_review' inquiry.tenant_id %}" class="button btn-outline">Review tenant</a>
+
           {% if not inquiry.is_read %}
             <form method="post" action="{% url 'inquiries:mark_read' inquiry.pk %}">
               {% csrf_token %}

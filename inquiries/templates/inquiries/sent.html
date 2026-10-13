@@ -64,6 +64,8 @@
 
           <div class="inq-actions">
             <a href="{% url 'properties:house_detail' inquiry.house.pk %}">View house</a>
+            <a href="{% url 'reviews:landlord_profile' inquiry.house.landlord_id %}">Landlord reviews</a>
+            <a href="{% url 'reviews:write_review' inquiry.house.landlord_id %}">Review landlord</a>
             {% if inquiry.house.landlord.phone_number %}
               <a href="tel:{{ inquiry.house.landlord.phone_number }}" class="button">Call landlord</a>
             {% endif %}

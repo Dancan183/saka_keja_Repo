@@ -6,21 +6,20 @@
   <title>{% block title %}Saka Keja{% endblock %}</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root { --green: #1b7f4b; --dark: black; --grey: #f3f4f6; --red: #c0392b; --forest: #0f3d2a; --star: #f5b301; }
+    :root { --green: #1b7f4b; --dark: #1f2933; --grey: #f3f4f6; --red: #c0392b; --forest: #0f3d2a; --star: #f5b301; --container: 1280px; }
     html { scroll-behavior: smooth; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: system-ui, sans-serif; color: var(--dark); background: #fff; line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
     a { color: var(--green); }
     img { max-width: 100%; display: block; }
-    main { max-width: 1000px; width: 100%; margin: 0 auto; padding: 1rem; flex: 1; }
+    main { max-width: var(--container); width: 100%; margin: 0 auto; padding: 1rem; flex: 1; }
 
     /* Navigation */
     .site-nav { background: var(--dark); }
-    .nav-inner { max-width: 1000px; margin: 0 auto; padding: .6rem 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+    .nav-inner { max-width: var(--container); margin: 0 auto; padding: .6rem 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
     .site-nav a, .site-nav button { color: #fff; text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; padding: 0; }
     .site-nav a:hover, .site-nav button:hover { text-decoration: underline; }
-    .brand { font-weight: 700; font-size: 1.15rem; margin-right: auto; display: flex; align-items: center; gap: .5rem; }
-    .brand i{color: #6fcf97;}
+    .brand { font-weight: 700; font-size: 1.15rem; margin-right: auto; }
     .nav-inner form { display: inline; }
 
     /* Messages */
@@ -62,7 +61,7 @@
 
     /* Top contact bar */
     .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; font-size: .8rem; color: var(--dark); }
-    .topbar-inner { max-width: 1100px; margin: 0 auto; padding: .45rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .3rem 1.5rem; }
+    .topbar-inner { max-width: var(--container); margin: 0 auto; padding: .45rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .3rem 1.5rem; }
     .topbar-info, .topbar-social { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem 1.2rem; list-style: none; margin: 0; padding: 0; }
     .topbar-info li { display: flex; align-items: center; gap: .4rem; }
     .topbar a { color: inherit; text-decoration: none; }
@@ -87,7 +86,7 @@
 
     /* Footer */
     .site-footer { background: var(--forest); color: rgba(255,255,255,.72); margin-top: 3rem; }
-    .footer-inner { max-width: 1100px; margin: 0 auto; padding: 3rem 1rem 1.5rem; }
+    .footer-inner { max-width: var(--container); margin: 0 auto; padding: 3rem 1rem 1.5rem; }
     .footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1.4fr; gap: 2rem; }
     .site-footer h3 { color: #fff; font-size: 1rem; margin: 0 0 1rem; }
     .site-footer a { color: rgba(255,255,255,.72); text-decoration: none; }
@@ -111,7 +110,7 @@
 </head>
 <body>
 {# EDIT YOUR CONTACT DETAILS HERE. They are used in the top bar and the footer. #}
-{% with site_email="dancannyakundi836@gmail.com" site_phone="+254 798907004" site_phone_link="+254798907004" site_address="Murang'a Town, Kenya" %}
+{% with site_email="hello@sakakeja.co.ke" site_phone="+254 700 000 000" site_phone_link="+254700000000" site_address="Murang'a Town, Kenya" %}
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -132,13 +131,7 @@
 
 <nav class="site-nav">
   <div class="nav-inner">
-    <a href="{% url 'properties:home' %}" class="brand" >
-      <i class="fa-solid fa-house-chimney" aria-hidden="true">Saka Keja</i> 
-
-      <p>Find. Rent. Be happy!</p>
-    </a>
-    
-
+    <a href="{% url 'properties:home' %}" class="brand">Saka Keja</a>
 
     <a href="{% url 'properties:house_list' %}">Find a house</a>
 
@@ -152,6 +145,7 @@
       {% else %}
         <a href="{% url 'inquiries:sent' %}">My inquiries</a>
       {% endif %}
+      <a href="{% url 'reviews:my_reviews' %}">Reviews</a>
 
       <span>Hi, {{ user.username }}</span>
 
@@ -252,7 +246,7 @@
 
     <div class="footer-bottom">
       <span>&copy; {% now "Y" %} Saka Keja. All rights reserved.</span>
-      <span>Designed by <mark> <b>Dropuration Tech Solutions</b></mark> </span>
+      <span>Designed with <span class="heart">&hearts;</span> for your dream home</span>
     </div>
   </div>
 </footer>

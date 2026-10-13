@@ -1,0 +1,64 @@
+{% extends "properties/base.html" %}
+{% load review_extras %}
+
+{% block title %}{{ person.get_full_name|default:person.username }} | Landlord reviews | Saka Keja{% endblock %}
+
+{% block content %}
+{% include "reviews/_styles.html" %}
+
+<div class="rv-card rv-head">
+  <span class="rv-avatar">{{ person.username|slice:":1"|upper }}</span>
+  <div>
+    <h1>{{ person.get_full_name|default:person.username }}</h1>
+    <span class="rv-muted">Landlord &middot; Member since {{ person.date_joined|date:"F Y" }}</span>
+  </div>
+</div>
+
+{% include "reviews/_stats.html" %}
+
+<div class="rv-cta">
+  {% if can_write %}
+    <a class="button" href="{% url 'reviews:write_review' person.pk %}">
+      {% if my_review %}Edit your review{% else %}Write a review{% endif %}
+    </a>
+  {% elif request.user.pk == person.pk %}
+    <span class="rv-note">This is how tenants see your profile.</span>
+  {% elif request.user.is_authenticated %}
+    <span class="rv-note">Only tenants who sent this landlord an inquiry can leave a review.</span>
+  {% else %}
+    <span class="rv-note">Contacted this landlord? <a href="{% url 'accounts:login' %}?next={{ request.path }}">Log in</a> to leave a review.</span>
+  {% endif %}
+</div>
+
+<h2>Reviews</h2>
+{% if page_obj %}
+  <ul class="rv-list">
+    {% for review in page_obj %}
+      {% include "reviews/_review_card.html" with show_reviewer=True can_report=request.user.is_authenticated %}
+    {% endfor %}
+  </ul>
+  {% if page_obj.has_other_pages %}
+    <nav class="pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">&laquo; Newer</a>{% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Older &raquo;</a>{% endif %}
+    </nav>
+  {% endif %}
+{% else %}
+  <p class="rv-note">No reviews yet.</p>
+{% endif %}
+
+{% if houses %}
+  <h2 style="margin-top:2rem;">Available houses from this landlord</h2>
+  <div class="rv-houses">
+    {% for house in houses %}
+      <a href="{% url 'properties:house_detail' house.pk %}">
+        <strong>{{ house.title }}</strong><br>
+        <span class="rv-muted">{{ house.location.name }}</span><br>
+        KSh {{ house.rent|floatformat:"0g" }} / month
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% endblock %}

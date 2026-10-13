@@ -1,4 +1,5 @@
 {% extends "properties/base.html" %}
+{% load review_extras %}
 
 {% block content %}
 
@@ -39,32 +40,31 @@
     </section>
   {% endif %}
 
-<section class="contact">
-  <h2>Contact the landlord</h2>
+  <section class="contact">
+    <h2>Contact the landlord</h2>
 
-  {% if house.is_vacant %}
-    <p>
-      Listed by {{ house.landlord.get_full_name|default:house.landlord.username }}
-    </p>
-
-    {% if house.landlord.phone_number %}
+    {% if house.is_vacant %}
       <p>
-        <a href="tel:{{ house.landlord.phone_number }}">Call {{ house.landlord.phone_number }}</a>
+        Listed by {{ house.landlord.get_full_name|default:house.landlord.username }}
       </p>
-    {% endif %}
+      {% landlord_rating house.landlord %}
 
-    {% if user.is_landlord %}
-      <p>Log in with a tenant account to send an inquiry.</p>
+      {% if house.landlord.phone_number %}
+        <p>
+          <a href="tel:{{ house.landlord.phone_number }}">Call {{ house.landlord.phone_number }}</a>
+        </p>
+      {% endif %}
+
+      {% if user.is_landlord %}
+        <p>Log in with a tenant account to send an inquiry.</p>
+      {% else %}
+        <a href="{% url 'inquiries:send_inquiry' house.pk %}" class="button">Send an inquiry</a>
+      {% endif %}
+
     {% else %}
-      <a href="{% url 'inquiries:send_inquiry' house.pk %}" class="button">
-        Send an inquiry
-      </a>
+      <p>This house is currently occupied.</p>
     {% endif %}
-
-  {% else %}
-    <p>This house is currently occupied.</p>
-  {% endif %}
-</section>
+  </section>
 
   {% if request.user == house.landlord %}
     <section class="owner-actions">

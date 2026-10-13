@@ -1,0 +1,23 @@
+{% load review_extras %}
+
+<div class="rv-top">
+  <div class="rv-card rv-score">
+    {% if stats.count %}
+      <strong>{{ stats.average }}</strong>
+      {% stars stats.average %}
+      <div class="rv-muted">{{ stats.count }} review{{ stats.count|pluralize }}</div>
+    {% else %}
+      <strong>&ndash;</strong>
+      <div class="rv-muted">No reviews yet</div>
+    {% endif %}
+  </div>
+  <div class="rv-card rv-bars">
+    {% for row in stats.breakdown %}
+      <div class="rv-bar">
+        <span>{{ row.stars }} <i class="fa-solid fa-star" style="color:var(--star)" aria-hidden="true"></i></span>
+        <span class="track"><span class="fill" style="display:block;width: {{ row.percent  }}%"></span></span>
+        <span>{{ row.count }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>

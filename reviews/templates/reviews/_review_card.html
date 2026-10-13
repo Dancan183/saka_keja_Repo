@@ -1,0 +1,48 @@
+{% load review_extras %}
+<li class="rv-card rv-item{% if not review.is_visible %} rv-hidden{% endif %}" id="review-{{ review.pk }}">
+  <div class="who">
+    {% if show_reviewer %}
+      <span class="rv-avatar">{{ review.reviewer.username|slice:":1"|upper }}</span>
+      <div>
+        <strong>{{ review.reviewer.get_full_name|default:review.reviewer.username }}</strong>
+        <span class="rv-muted">{{ review.created_at|date:"j M Y" }}</span>
+      </div>
+    {% else %}
+      <span class="rv-avatar">{{ review.reviewee.username|slice:":1"|upper }}</span>
+      <div>
+        <strong>{{ review.reviewee.get_full_name|default:review.reviewee.username }}</strong>
+        <span class="rv-muted">{{ review.created_at|date:"j M Y" }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  {% stars review.rating %}
+  {% if review.comment %}<p>{{ review.comment|linebreaksbr }}</p>{% endif %}
+  {% if review.house %}<p class="rv-context">About: {{ review.house.title }}</p>{% endif %}
+  {% if not review.is_visible %}<p class="rv-note">Hidden by the moderators. Only you and the admins can see this.</p>{% endif %}
+
+  <div class="rv-actions">
+    {% if review.reviewer_id == request.user.pk %}
+      <a href="{% url 'reviews:write_review' review.reviewee_id %}">Edit</a>
+      <form method="post" action="{% url 'reviews:delete_review' review.pk %}"
+            onsubmit="return confirm('Delete this review?');">
+        {% csrf_token %}
+        <button type="submit" class="rv-link-btn">Delete</button>
+      </form>
+    {% elif can_report and review.pk in reported_ids %}
+      <span class="rv-muted">You reported this review</span>
+    {% elif can_report %}
+      <details class="rv-report">
+        <summary>Report</summary>
+        <form method="post" action="{% url 'reviews:report_review' review.pk %}">
+          {% csrf_token %}
+          <select name="reason" required aria-label="Reason">
+            {% for value, label in reasons %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+          </select>
+          <input type="text" name="note" maxlength="300" placeholder="Details (optional)">
+          <button type="submit">Send report</button>
+        </form>
+      </details>
+    {% endif %}
+  </div>
+</li>

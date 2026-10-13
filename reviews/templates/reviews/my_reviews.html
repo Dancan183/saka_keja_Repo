@@ -1,0 +1,51 @@
+{% extends "properties/base.html" %}
+{% load review_extras %}
+
+{% block title %}My reviews | Saka Keja{% endblock %}
+
+{% block content %}
+{% include "reviews/_styles.html" %}
+
+<h1>My reviews</h1>
+
+{% if to_review %}
+  <h2>Waiting for your review</h2>
+  <p class="rv-muted">People you have been in touch with through an inquiry.</p>
+  <ul class="rv-list">
+    {% for person in to_review %}
+      <li class="rv-card rv-head">
+        <span class="rv-avatar">{{ person.username|slice:":1"|upper }}</span>
+        <div style="flex:1">
+          <strong>{{ person.get_full_name|default:person.username }}</strong><br>
+          <span class="rv-muted">{% if person.is_landlord %}Landlord{% else %}Tenant{% endif %}</span>
+        </div>
+        <a class="button" href="{% url 'reviews:write_review' person.pk %}">Write a review</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<h2 style="margin-top:2rem;">Reviews about me</h2>
+{% include "reviews/_stats.html" %}
+{% if received %}
+  <ul class="rv-list">
+    {% for review in received %}
+      {% include "reviews/_review_card.html" with show_reviewer=True can_report=True reasons=reasons %}
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="rv-note">Nobody has reviewed you yet.</p>
+{% endif %}
+
+<h2 style="margin-top:2rem;">Reviews I wrote</h2>
+{% if written %}
+  <ul class="rv-list">
+    {% for review in written %}
+      {% include "reviews/_review_card.html" with show_reviewer=False %}
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="rv-note">You haven't written any reviews yet.</p>
+{% endif %}
+
+{% endblock %}
