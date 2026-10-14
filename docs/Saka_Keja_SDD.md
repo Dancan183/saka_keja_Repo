@@ -16,27 +16,7 @@ Saka Keja is a **modular monolith**: one Django project split into four apps, re
 
 ### 1.2 System diagram
 
-```
-                      +------------------------------------------+      +--------------------+
-                      | Vercel: Django, one function per request | ---> | Neon PostgreSQL    |
-                      |                                          |      | database           |
-                      |                                          |      +--------------------+
-                      | accounts       properties                |
-                      | inquiries      reviews                   |      +--------------------+
-                      |                                          | ---> | Supabase Storage   |
-                      |                                          |      | house photos       |
-+-----------+ HTTPS   | shared: templates, sessions, CSRF        |      +--------------------+
-|  Browser  | ------> |                                          |
-| phone/PC  | <------ |                                          |      +--------------------+
-+-----------+         |                                          | ---> | Email (SMTP)       |
-                      |                                          |      | codes, reset links |
-                      |                                          |      +--------------------+
-                      |                                          |
-                      |                                          |      +--------------------+
-                      |                                          | ---> | Africa's Talking   |
-                      |                                          |      | SMS codes          |
-                      +------------------------------------------+      +--------------------+
-```
+`![alt text](image.png)
 
 The browser also loads house photos straight from the storage bucket, and static files from the Vercel CDN, so those requests do not pass through Django. A push to GitHub starts a Vercel build that runs the database migrations.
 
