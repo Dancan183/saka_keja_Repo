@@ -43,7 +43,10 @@ Two worked scenarios, followed by formal use case tables. Everything here matche
 ## 4. How the pieces connect
 
 ```
-![alt text](image-1.png)
+Tenant browser ─┐                                   ┌─ Neon Postgres (users, houses, inquiries, reviews)
+                ├─► Vercel (Django: accounts,       ├─ Supabase bucket (photos)
+Landlord browser┘    properties, inquiries,    ────►├─ Africa's Talking (SMS codes)
+                     reviews)                       └─ SMTP (email codes, password reset)
 ```
 
 The shared record is the **Inquiry**. It links tenant, landlord and house, and it unlocks reviews, so only people who actually dealt with each other can rate one another.
@@ -122,4 +125,4 @@ The shared record is the **Inquiry**. It links tenant, landlord and house, and i
 | Note | Deactivate users instead of deleting those with linked records, which can raise an integrity error. |
 
 
-
+![alt text](image-1.png)
