@@ -1,0 +1,19 @@
+
+  .phone-row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: stretch; }
+  .phone-row input { flex: 1 1 220px; max-width: 420px; }
+  .phone-row .btn-confirm { flex: 0 0 auto; white-space: nowrap; }
+  .phone-code-row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: stretch; margin-top: .4rem; }
+  .phone-code-row input { flex: 1 1 220px; max-width: 420px; letter-spacing: .25em; }
+  .phone-code-row .btn-verify { flex: 0 0 auto; white-space: nowrap; }
+  .phone-block input:disabled { background: #f3f4f6; color: #9ca3af; border-color: #e5e7eb; cursor: not-allowed; }
+  .phone-block button:disabled { opacity: .55; cursor: not-allowed; }
+  .phone-status { min-height: 1.4em; margin: .4rem 0 0; font-size: .9rem; color: #6b7280; }
+  .phone-status.ok { color: #11522f; }
+  .phone-status.error { color: var(--red); }
+  .phone-badge { display: inline-block; margin-top: .4rem; padding: .15rem .7rem; border-radius: 99px; background: #e3f6ec; color: #11522f; font-size: .85rem; font-weight: 600; }
+  .phone-badge[hidden] { display: none; }
+  .phone-block.is-verified #id_phone_number { border-color: var(--green); }
+  @media (max-width: 600px) {
+    .phone-row .btn-confirm, .phone-code-row .btn-verify { flex: 1 1 100%; }
+  }
+

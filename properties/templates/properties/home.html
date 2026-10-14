@@ -110,77 +110,9 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="{% static 'properties/home.css' %}">
 <style>
-  .home-section { margin: 2.5rem 0; }
-  .home-section > h2 { margin-bottom: .8rem; }
-  .section-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; }
-  .area-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .8rem; }
-  .area-card { display: block; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; text-decoration: none; color: var(--dark); }
-  .area-card:hover { border-color: var(--green); background: #f6fbf8; }
-  .area-card strong { display: block; }
-  .area-card span { color: #6b7280; font-size: .9rem; }
-  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-  .step { background: var(--grey); border-radius: 8px; padding: 1rem; }
-  .step .num { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; margin-bottom: .4rem; }
-  .cta-band { background: var(--dark); color: #fff; border-radius: 12px; padding: 1.8rem 1rem; text-align: center; }
-  .cta-band .button { background: #fff; color: var(--dark); margin: .3rem; }
 
-  /* Hero */
-  .hx { background: linear-gradient(180deg, #f3faf6 0%, #fff 100%); padding: 2.5rem 1rem 0; }
-  .hx-inner { max-width: 1100px; margin: 0 auto; padding-bottom: 3.2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 2.5rem; align-items: center; }
-  .hx h1 { margin: 0 0 1rem; font-size: clamp(2rem, 4.4vw, 3rem); line-height: 1.12; }
-  .hx-l1 { display: block; color: var(--dark); }
-  .hx-l2 { display: block; color: var(--green); }
-  .hx-lead { font-size: 1.05rem; color: #4b5563; max-width: 34rem; margin: 0 0 1.5rem; }
-  .hx-buttons { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 1.8rem; }
-  .hx-buttons .button, .hx-btn-outline { padding: .8rem 1.5rem; border-radius: 8px; font-weight: 600; }
-  .hx-btn-outline { border: 2px solid var(--green); color: var(--green); text-decoration: none; display: inline-block; }
-  .hx-btn-outline:hover { background: var(--green); color: #fff; }
-  .hx-trust { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
-  .hx-avatars { display: flex; }
-  .hx-avatars .av + .av { margin-left: -.6rem; }
-  .hx-trust span { color: #4b5563; font-size: .92rem; }
-  .hx-visual { position: relative; min-height: 420px; border-radius: 24px; overflow: hidden; background: linear-gradient(135deg, #2f7d57, #0f3d2a); }
-  .hx-visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .hx-card { position: absolute; z-index: 1; left: 1.2rem; bottom: 1.2rem; display: flex; align-items: center; gap: .8rem; background: #fff; color: var(--dark); text-decoration: none; padding: .8rem 1rem; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); max-width: calc(100% - 2.4rem); }
-  .hx-card-icon { width: 2.6rem; height: 2.6rem; border-radius: 10px; background: #e3f6ec; color: var(--green); display: grid; place-items: center; font-size: 1.1rem; flex: none; }
-  .hx-card strong { display: block; line-height: 1.2; }
-  .hx-card small { display: block; color: #6b7280; }
-  .hx-card em { font-style: normal; color: var(--green); font-weight: 700; }
-
-  /* Search panel */
-  .hx-search { position: relative; z-index: 2; max-width: 1100px; margin: -2.2rem auto 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.2rem; box-shadow: 0 10px 30px rgba(15,61,42,.12); display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: .9rem; align-items: end; }
-  .hx-search .field { margin: 0; min-width: 0; }
-  .hx-search .field label { font-size: .8rem; color: #6b7280; font-weight: 600; }
-  .hx-search .field label i { color: var(--green); margin-right: .3rem; }
-  .hx-search select, .hx-search input { max-width: none; padding: .65rem .6rem; }
-  .hx-search button { padding: .8rem 1.4rem; font-weight: 600; border-radius: 8px; white-space: nowrap; }
-  .hx-gap { height: 1.5rem; }
-
-  /* Testimonials */
-  .tt-head { text-align: center; margin-bottom: 1.4rem; }
-  .tt-head h2 { margin: 0 0 .3rem; }
-  .tt-head p { margin: 0; color: #6b7280; }
-  .tt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
-  .tt-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1.4rem; display: flex; flex-direction: column; gap: 1rem; }
-  .tt-quote { color: var(--green); font-size: 1.6rem; opacity: .85; }
-  .tt-text { margin: 0; color: #374151; flex: 1; }
-  .tt-person { display: flex; align-items: center; gap: .8rem; }
-  .tt-person strong { display: block; line-height: 1.2; }
-  .tt-person span { color: #6b7280; font-size: .9rem; }
-  .tt-stars { color: var(--star); font-size: .95rem; display: flex; gap: .15rem; }
-
-  @media (max-width: 900px) {
-    .hx-inner { grid-template-columns: 1fr; }
-    .hx-visual { min-height: 300px; order: -1; }
-    .hx-search { grid-template-columns: repeat(2, 1fr); margin-top: -1.5rem; }
-    .hx-search button { grid-column: 1 / -1; }
-    .tt-grid { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 480px) {
-    .hx-search { grid-template-columns: 1fr; }
-    .hx-buttons .button, .hx-btn-outline { flex: 1 1 100%; text-align: center; }
-  }
 </style>
 
 <!-- 2. Browse by area -->
