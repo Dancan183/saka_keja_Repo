@@ -123,3 +123,6 @@ The shared record is the **Inquiry**. It links tenant, landlord and house, and i
 | Actors | Admin |
 | Main flow | Add locations; change roles or deactivate users; edit or remove houses; moderate reviews. |
 | Note | Deactivate users instead of deleting those with linked records, which can raise an integrity error. |
+
+
+![alt text](image-1.png)
