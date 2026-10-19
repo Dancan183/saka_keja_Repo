@@ -4,61 +4,73 @@
 {% block title %}Register | Saka Keja{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'accounts/register.css' %}">
-<h1>Create an account</h1>
 
-<form method="post" novalidate id="register-form">
-  {% csrf_token %}
+<link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
 
-  {{ form.non_field_errors }}
+<section class="auth-card">
+  <div class="auth-main">
+    <a class="auth-brand" href="{% url 'properties:home' %}"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2 1 11h3v10h6v-6h4v6h6V11h3z"/></svg> Saka Keja</a>
 
-  {% for field in form %}
-    {% if field.name == "phone_number" %}
+    <h1>Create an account</h1>
+    <p class="auth-lead">Join Saka Keja to find a home or list yours. Tenants confirm their email. Landlords also confirm their phone number by SMS.</p>
 
-      <div class="field phone-block{% if phone_initially_verified %} is-verified{% endif %}" id="phone-block"
-           data-send-url="{% url 'accounts:phone_send' %}"
-           data-verify-url="{% url 'accounts:phone_verify' %}"
-           data-reset-url="{% url 'accounts:phone_reset' %}"
-           data-verified="{% if phone_initially_verified %}true{% else %}false{% endif %}">
+    <form method="post" novalidate id="register-form" class="auth-form">
+      {% csrf_token %}
 
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        <div class="phone-row">
-          {{ field }}
-          <button type="button" id="phone-confirm" class="btn-confirm">Confirm Phone Number</button>
-        </div>
-        {{ field.errors }}
+      {{ form.non_field_errors }}
 
-        <label for="id_phone_code" style="margin-top:.8rem;">Verification code</label>
-        <div class="phone-code-row">
-          {# No name attribute: the code is checked by the server, never submitted with the form. #}
-          <input type="text" id="id_phone_code" inputmode="numeric" pattern="[0-9]*" maxlength="6"
-                 autocomplete="one-time-code" placeholder="6-digit code" disabled>
-          <button type="button" id="phone-verify" class="btn-verify" disabled>Verify Code</button>
-        </div>
+      {% for field in form %}
+        {% if field.name == "phone_number" %}
 
-        <p id="phone-status" class="phone-status" role="status" aria-live="polite"></p>
-        <span id="phone-badge" class="phone-badge" hidden>&#10003; Phone number verified</span>
-      </div>
+          <div class="field phone-block{% if phone_initially_verified %} is-verified{% endif %}" id="phone-block"
+               data-send-url="{% url 'accounts:phone_send' %}"
+               data-verify-url="{% url 'accounts:phone_verify' %}"
+               data-reset-url="{% url 'accounts:phone_reset' %}"
+               data-verified="{% if phone_initially_verified %}true{% else %}false{% endif %}">
 
-    {% else %}
+            <label for="{{ field.id_for_label }}" id="phone-label">{{ field.label }}</label>
+            <div class="phone-row">
+              {{ field }}
+              <button type="button" id="phone-confirm" class="btn-confirm">Confirm Phone Number</button>
+            </div>
+            {{ field.errors }}
 
-      <div class="field">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}
-          <small class="help">{{ field.help_text|safe }}</small>
+            <label for="id_phone_code" class="phone-code-label">Verification code</label>
+            <div class="phone-code-row">
+              {# No name attribute: the code is checked by the server, never submitted with the form. #}
+              <input type="text" id="id_phone_code" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                     autocomplete="one-time-code" placeholder="6-digit code" disabled>
+              <button type="button" id="phone-verify" class="btn-verify" disabled>Verify Code</button>
+            </div>
+
+            <p id="phone-status" class="phone-status" role="status" aria-live="polite"></p>
+            <span id="phone-badge" class="phone-badge" hidden>&#10003; Phone number verified</span>
+          </div>
+
+        {% else %}
+
+          <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <small class="help">{{ field.help_text|safe }}</small>
+            {% endif %}
+            {{ field.errors }}
+          </div>
+
         {% endif %}
-        {{ field.errors }}
-      </div>
+      {% endfor %}
 
-    {% endif %}
-  {% endfor %}
+      <button type="submit" id="register-submit">Register</button>
+    </form>
 
-  <button type="submit" id="register-submit">Register</button>
-</form>
+    <p class="auth-alt">Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
+  </div>
 
-<p>Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
+  {% include "accounts/_auth_visual.html" with heading="Your next home starts here" text="Tenants search and message landlords. Landlords list houses and reach people looking now." %}
+</section>
 
 <script src="{% static 'accounts/phone_verify.js' %}"></script>
+<script src="{% static 'accounts/auth.js' %}"></script>
 
 {% endblock %}

@@ -7,6 +7,7 @@ If you find a security issue, please **do not post it publicly**. Email: _securi
 ## What is protected today
 
 **Accounts**
+- Tenants verify their email only; landlords verify phone and email. This saves SMS cost. A tenant's phone number is checked for a valid Kenyan format but **not confirmed by SMS**, so treat it as a claim, not proof.
 - Passwords are hashed by Django. The sign-up flow stores the hash, never the plain password, even while the registration is pending.
 - An account is created only after both the phone and the email are verified.
 - Unverified sign-ups live in a temporary record that expires after 30 minutes and is tied to the browser session by a token.
@@ -41,6 +42,7 @@ These are real and not yet fixed. Treat them as the to-do list.
 8. **Gmail SMTP is used for email.** Fine for testing; use a dedicated service for real traffic.
 9. **Early Git history contains `db.sqlite3` and an old `SECRET_KEY`.** The old key must never be reused. If the repository is public or shared, rewrite the history or treat that data as exposed.
 10. **No Terms or Privacy pages yet.**
+11. **Tenant phone numbers are unverified.** Someone could enter another person's number. Landlords should not rely on it as proof of identity.
 
 ## Secrets
 

@@ -20,8 +20,8 @@ Two worked scenarios, followed by formal use case tables. Everything here matche
 | Step | What Wanjiru does | What happens inside the system |
 |---|---|---|
 | 1 | Registers as a **Tenant** | `accounts` stores her sign-up in `PendingRegistration` (password already hashed, tied to her browser session). No `User` exists yet. |
-| 2 | Enters her phone, presses **Confirm Phone Number** | A 6-digit code is hashed (HMAC-SHA256) and sent by SMS. Limits: 60 s between sends, 5 attempts per code. |
-| 3 | Enters the SMS code, then the email code | Phone is marked verified (single use). Email code (10 min) is checked. Only now is the `User` created. |
+| 2 | Submits the form (Kenyan phone number required, format-checked) | No SMS is sent: tenants verify their email only. A 6-digit email code (10 min) is sent. |
+| 3 | Enters the email code | The code is checked. Only now is the `User` created. Her phone is stored in international format, unverified. |
 | 4 | Searches location = Mukuyu Market, 2 bedrooms, max rent 12,000 | `properties` filters houses by location, type, rent range, exact bedrooms and minimum bathrooms. 12 results per page. |
 | 5 | Opens a house | Photos load from Supabase Storage. Call and WhatsApp buttons show. |
 | 6 | Presses **Contact the landlord**, sends a message | `inquiries` saves an `Inquiry` linking her, the landlord and the house. |
@@ -33,7 +33,7 @@ Two worked scenarios, followed by formal use case tables. Everything here matche
 
 | Step | What Mr. Kamau does | What happens inside the system |
 |---|---|---|
-| 1 | Registers as a **Landlord**, completes both verifications | Same two-step flow. `is_landlord` is true, so **Add house** appears. |
+| 1 | Registers as a **Landlord**, completes both verifications | Landlords alone also verify the phone: a 6-digit SMS code (5 min; 60 s between sends, 5 attempts) first, then the email code. `is_landlord` is true, so **Add house** appears. |
 | 2 | Adds a house | `properties` saves a `House` owned by him, using a location from the admin-managed list. |
 | 3 | Uploads photos | Files go to the Supabase bucket. Files over about 4.5 MB fail on Vercel. |
 | 4 | Opens **Inbox**, replies to Wanjiru | `inquiries` lists inquiries addressed to him. |
@@ -57,11 +57,12 @@ The shared record is the **Inquiry**. It links tenant, landlord and house, and i
 
 | Field | Detail |
 |---|---|
-| Actors | Visitor, SMS provider, email server |
-| Precondition | Visitor has a phone that receives SMS and an email address |
-| Main flow | 1. Fill the form and choose a role. 2. Request the phone code. 3. Enter it (5 min lifetime). 4. Submit; email code is sent. 5. Enter it (10 min lifetime). 6. Account is created. |
+| Actors | Visitor, email server; SMS provider (landlords only) |
+| Precondition | Visitor has an email address. Landlords also need a phone that receives SMS. |
+| Main flow (tenant) | 1. Fill the form and choose Tenant (phone required, format-checked, no SMS). 2. Submit; email code is sent. 3. Enter it (10 min lifetime). 4. Account is created. |
+| Main flow (landlord) | 1. Fill the form and choose Landlord (phone required). 2. Request the phone code. 3. Enter it (5 min lifetime). 4. Submit; email code is sent. 5. Enter it (10 min lifetime). 6. Account is created. |
 | Alternate flows | **Wrong code:** error shown; 5 attempts per code. **Expired code:** request a new one. **Resend too soon:** wait 60 s. **Too many sends:** 5 per phone per hour, 10 per IP per hour. **Other browser or over 30 minutes:** pending sign-up lost; register again. |
-| Postcondition | `User` exists only if both verifications succeeded |
+| Postcondition | `User` exists only after verification: email for tenants, phone and email for landlords. A tenant's phone is format-checked and stored unverified. |
 
 ### UC-02 Log in and reset password
 
@@ -123,6 +124,5 @@ The shared record is the **Inquiry**. It links tenant, landlord and house, and i
 | Actors | Admin |
 | Main flow | Add locations; change roles or deactivate users; edit or remove houses; moderate reviews. |
 | Note | Deactivate users instead of deleting those with linked records, which can raise an integrity error. |
-
 
 ![alt text](image-1.png)

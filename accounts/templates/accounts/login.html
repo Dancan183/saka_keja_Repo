@@ -1,32 +1,52 @@
 {% extends "properties/base.html" %}
+{% load static %}
 
 {% block title %}Login | Saka Keja{% endblock %}
 
 {% block content %}
 
-<h1>Login</h1>
+<link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
 
-<form method="post" novalidate>
-  {% csrf_token %}
+<section class="auth-card">
+  <div class="auth-main">
+    <a class="auth-brand" href="{% url 'properties:home' %}"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2 1 11h3v10h6v-6h4v6h6V11h3z"/></svg> Saka Keja</a>
 
-  {{ form.non_field_errors }}
+    <h1>Welcome back</h1>
+    <p class="auth-lead">Log in to continue your search for a home in Murang'a.</p>
 
-  {% for field in form %}
-    <div class="field">
-      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-      {{ field }}
-      {{ field.errors }}
-    </div>
-  {% endfor %}
+    <form method="post" novalidate class="auth-form">
+      {% csrf_token %}
 
-  {# Keeps ?next= so users return to where they were going #}
-  <input type="hidden" name="next" value="{{ next }}">
+      {{ form.non_field_errors }}
 
-  <button type="submit">Login</button>
-</form>
+      {% for field in form %}
+        <div class="field">
+          {% if field.name == "password" %}
+            <div class="label-row">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <a href="{% url 'accounts:password_reset' %}">Forgot your password?</a>
+            </div>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% endif %}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
 
-<p><a href="{% url 'accounts:password_reset' %}">Forgot your password?</a></p>
-<p>Waiting for a verification code? <a href="{% url 'accounts:verify_email' %}">Enter it here</a></p>
-<p>No account yet? <a href="{% url 'accounts:register' %}">Register</a></p>
+      {# Keeps ?next= so users return to where they were going #}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <button type="submit">Login</button>
+    </form>
+
+    <p class="auth-alt">No account yet? <a href="{% url 'accounts:register' %}">Register</a></p>
+    <p class="auth-alt">Waiting for a verification code? <a href="{% url 'accounts:verify_email' %}">Enter it here</a></p>
+  </div>
+
+  {% include "accounts/_auth_visual.html" with heading="Find a home you will love" text="Browse houses in Murang'a, see real photos and rents, and talk to landlords directly." %}
+</section>
+
+<script src="{% static 'accounts/auth.js' %}"></script>
 
 {% endblock %}

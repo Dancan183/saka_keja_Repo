@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 
 from . import phone as phone_service
 from .forms import RegisterForm, VerifyCodeForm
-from .models import PendingRegistration
+from .models import PendingRegistration, User
 from .otp import (
     PhoneNotVerified,
     can_send_code,
@@ -60,17 +60,24 @@ def register(request):
     if request.user.is_authenticated:
         return redirect("properties:house_list")
 
-    form = RegisterForm(request.POST or None)
+    # ?role=landlord (from the "List your house" link) preselects the role.
+    initial_role = request.GET.get("role")
+    initial = {"role": initial_role} if initial_role in User.Role.values else {}
+    form = RegisterForm(request.POST or None, initial=initial)
     if request.method == "POST" and form.is_valid():
         purge_expired()
         email = form.cleaned_data["email"]
         existing = PendingRegistration.objects.filter(email=email).first()
 
-        # The phone number must have been verified by SMS in THIS browser, for exactly this number.
-        phone_token = request.session.get(phone_service.SESSION_KEY)
-        phone_check = phone_service.verified_row_for(phone_token, form.cleaned_data["phone_number"])
+        # Landlords must have verified their phone by SMS in THIS browser, for exactly this number.
+        # Tenants are verified by email only: their number is format-checked but not confirmed by SMS.
+        is_landlord = form.cleaned_data["role"] == User.Role.LANDLORD
+        phone_token = request.session.get(phone_service.SESSION_KEY) if is_landlord else ""
+        phone_check = (
+            phone_service.verified_row_for(phone_token, form.cleaned_data["phone_number"]) if is_landlord else None
+        )
 
-        if phone_check is None:
+        if is_landlord and phone_check is None:
             form.add_error(
                 "phone_number",
                 "Please verify this phone number first: press Confirm Phone Number and enter the code we send by SMS.",
@@ -79,7 +86,9 @@ def register(request):
             # Stops email flooding and stops someone overwriting a sign-up in progress.
             form.add_error("email", "A code was just sent to this email. Please wait a minute and try again.")
         else:
-            pending, code = start_registration(form.cleaned_data, phone_token=phone_check.token)
+            pending, code = start_registration(
+                form.cleaned_data, phone_token=phone_check.token if phone_check else ""
+            )
             sent = send_code_email(pending.email, pending.username, code)
             request.session[SESSION_KEY] = pending.token
 

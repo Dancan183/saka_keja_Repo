@@ -6,7 +6,7 @@
 |---|---|
 | **Version** | 1.0 |
 | **Date** | October 2026 |
-| **Author** | Dancan Mokiei Nyakundi |
+| **Author** | [your name] |
 | **Status** | Draft. MVP is built and tested, and email works; live SMS and the legal pages are still to be connected |
 | **Target Launch** | [to be decided; see "Launch blockers" in section 5] |
 
@@ -53,7 +53,7 @@ People in Murang'a have no single, trustworthy, up-to-date place to find or adve
 |---|---|
 | G1 | A tenant can find a suitable vacant house in minutes from a phone, using area, price and size filters. |
 | G2 | A landlord can list a house with photos in under 10 minutes and keep its status current. |
-| G3 | Build trust: every account verified by phone and email, and reviews tied to real contact. |
+| G3 | Build trust: every account's email verified (and every landlord's phone too, since SMS costs money), and reviews tied to real contact. |
 | G4 | Keep running costs close to zero until the product has traffic. |
 | G5 | Protect users' data: no unverified accounts, hashed secrets, private tenant reviews. |
 
@@ -94,7 +94,7 @@ These profiles are assumptions to check during the interviews in section 2.
 
 | # | Feature | What it does | Priority | Status |
 |---|---|---|---|---|
-| F1 | Account sign-up with two verifications | Phone number confirmed by an SMS code, email confirmed by a code. The account is created only after both succeed. | Must | Built |
+| F1 | Account sign-up with verification | Tenants confirm their email by a code. Landlords confirm their phone number by an SMS code and their email by a code. The account is created only after verification succeeds. | Must | Built |
 | F2 | Login, logout and password reset | Username and password login, role-based landing page, reset link by email | Must | Built |
 | F3 | House listings | Landlord adds, edits and deletes houses: title, area, rent, bedrooms, bathrooms, type, description | Must | Built |
 | F4 | Photos | Landlord uploads and deletes photos for each house (stored in cloud storage) | Must | Built, but large phone photos fail until browser resizing is added |

@@ -311,6 +311,18 @@ class AfricasTalkingBackend(TestCase):
             with override_settings(SMS_BACKEND="africastalking", AT_USERNAME="u", AT_API_KEY="k", AT_BASE_URL=url):
                 self.assertFalse(sms.send_sms(PHONE_E164, "x"))
 
+    def test_success_is_logged_without_secrets(self):
+        server = FakeATServer(body={"SMSMessageData": {"Recipients": [
+            {"statusCode": 101, "status": "Success", "messageId": "ATXid_abc123"}]}})
+        self.addCleanup(server.close)
+        with self.assertLogs("accounts.sms", level="INFO") as logs:
+            self.assertTrue(self.run_with(server))
+        text = "\n".join(logs.output)
+        self.assertIn("ATXid_abc123", text)
+        self.assertIn("accepted", text)
+        for secret in ("482913", "secret-key-123", PHONE_E164):
+            self.assertNotIn(secret, text)
+
     def test_logs_never_contain_the_code_or_the_key(self):
         server = FakeATServer(body={"SMSMessageData": {"Recipients": [{"statusCode": 403, "status": "InvalidPhoneNumber"}]}})
         self.addCleanup(server.close)
@@ -325,7 +337,7 @@ class AfricasTalkingBackend(TestCase):
 class RegistrationRequiresVerifiedPhone(PhoneBase):
     PASSWORD = "S3cure-pass-99"
 
-    def register(self, client=None, role="tenant", verify=True, phone=PHONE, **extra):
+    def register(self, client=None, role="landlord", verify=True, phone=PHONE, **extra):
         client = client or self.client
         if verify:
             self.verify_phone(client, phone)
@@ -400,8 +412,9 @@ class RegistrationRequiresVerifiedPhone(PhoneBase):
         self.assertEqual(pending.phone_token, PhoneVerification.objects.get().token)
 
         done = self.client.post(reverse("accounts:verify_email"), {"code": email_code()})
-        self.assertRedirects(done, reverse("properties:house_list"), fetch_redirect_response=False)
+        self.assertRedirects(done, reverse("properties:house_create"), fetch_redirect_response=False)
         user = User.objects.get()
+        self.assertEqual(user.role, "landlord")
         self.assertEqual(user.phone_number, PHONE_E164)
         self.assertTrue(user.check_password(self.PASSWORD))
         self.assertIsNotNone(PhoneVerification.objects.get().consumed_at)
@@ -435,6 +448,74 @@ class RegistrationRequiresVerifiedPhone(PhoneBase):
         self.assertContains(r, 'data-verified="true"')
         r = self.register(verify=False, phone=OTHER_PHONE, password2="different-Pass-1")
         self.assertContains(r, 'data-verified="false"')
+
+
+# ---------------------------------------------------------------- tenants verify email only
+class TenantRegistrationNeedsNoSms(PhoneBase):
+    PASSWORD = "S3cure-pass-99"
+
+    def register(self, role="tenant", phone=PHONE, **extra):
+        data = {"username": "wanjiru", "email": "wanjiru@example.com", "phone_number": phone, "role": role,
+                "password1": self.PASSWORD, "password2": self.PASSWORD}
+        data.update(extra)
+        return self.client.post(reverse("accounts:register"), data)
+
+    def test_tenant_registers_without_any_sms(self):
+        r = self.register()
+        self.assertRedirects(r, reverse("accounts:verify_email"))
+        self.assertEqual(sms.outbox, [])
+        self.assertEqual(PhoneVerification.objects.count(), 0)
+        done = self.client.post(reverse("accounts:verify_email"), {"code": email_code()})
+        self.assertRedirects(done, reverse("properties:house_list"), fetch_redirect_response=False)
+        user = User.objects.get()
+        self.assertEqual((user.role, user.phone_number), ("tenant", PHONE_E164))
+
+    def test_tenant_phone_is_required(self):
+        r = self.register(phone="")
+        self.assertContains(r, "required")
+        self.assertEqual(PendingRegistration.objects.count(), 0)
+
+    def test_tenant_phone_must_be_a_valid_kenyan_number(self):
+        for bad in ["12345", "abcdefg", "0112", "+1 202 555 0100"]:
+            r = self.register(phone=bad)
+            self.assertContains(r, "valid Kenyan")
+        self.assertEqual(PendingRegistration.objects.count(), 0)
+        self.assertEqual(sms.outbox, [])
+
+    def test_tenant_number_is_saved_in_international_format(self):
+        self.register(phone="0712 345 678")
+        self.client.post(reverse("accounts:verify_email"), {"code": email_code()})
+        self.assertEqual(User.objects.get().phone_number, PHONE_E164)
+
+    def test_tenant_still_needs_the_email_code(self):
+        self.register()
+        self.assertEqual(User.objects.count(), 0)
+        r = self.client.post(reverse("accounts:verify_email"), {"code": wrong(email_code())})
+        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(r.status_code, 200)
+
+    def test_landlord_still_needs_phone_number_and_sms(self):
+        r = self.register(role="landlord", phone="")
+        self.assertContains(r, "required")
+        r = self.register(role="landlord")
+        self.assertContains(r, "verify this phone number first")
+        self.assertEqual(PendingRegistration.objects.count(), 0)
+
+    def test_role_cannot_be_switched_after_the_email_step_to_skip_sms(self):
+        self.register()                                           # tenant sign-up, no phone proof
+        PendingRegistration.objects.update(role="landlord")       # tampering
+        r = self.client.post(reverse("accounts:verify_email"), {"code": email_code()})
+        self.assertRedirects(r, reverse("accounts:register"), fetch_redirect_response=False)
+        self.assertEqual(User.objects.count(), 0)
+
+    def test_role_comes_before_phone_and_landlord_link_preselects_landlord(self):
+        html = self.client.get(reverse("accounts:register")).content.decode()
+        self.assertIn('id="phone-label"', html)
+        self.assertLess(html.index('id="id_role"'), html.index('id="id_phone_number"'))
+        self.assertNotIn("(optional)", html)
+        self.assertIn("phone_verify.js", html)
+        html = self.client.get(reverse("accounts:register") + "?role=landlord").content.decode()
+        self.assertRegex(html, r'<option value="landlord"[^>]*selected')
 
 
 # ---------------------------------------------------------------- email code step (unchanged behaviour)
@@ -579,6 +660,47 @@ class EmailCodeStep(PhoneBase):
     def test_pages_render(self):
         for name in ["login", "register", "password_reset", "password_reset_done", "password_reset_complete"]:
             self.assertEqual(self.client.get(reverse(f"accounts:{name}")).status_code, 200, name)
+
+
+class LoginAndLogout(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.landlord = User.objects.create_user("owner", "o@x.com", "Good-pass-12345", role="landlord", phone_number="+254700000001")
+        cls.tenant = User.objects.create_user("seeker", "s@x.com", "Good-pass-12345", role="tenant")
+
+    def login(self, username, password="Good-pass-12345", **extra):
+        return self.client.post(reverse("accounts:login"), {"username": username, "password": password, **extra})
+
+    def test_landlord_lands_on_my_houses_and_tenant_on_search(self):
+        self.assertRedirects(self.login("owner"), reverse("properties:my_houses"), fetch_redirect_response=False)
+        self.client.logout()
+        self.assertRedirects(self.login("seeker"), reverse("properties:house_list"), fetch_redirect_response=False)
+
+    def test_next_page_is_honoured_after_login(self):
+        target = reverse("inquiries:sent")
+        r = self.login("seeker", next=target)
+        self.assertRedirects(r, target, fetch_redirect_response=False)
+
+    def test_wrong_password_and_unknown_user_are_refused(self):
+        for username, password in [("seeker", "wrong"), ("nobody", "Good-pass-12345")]:
+            r = self.login(username, password)
+            self.assertEqual(r.status_code, 200)
+            self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logged_in_user_is_sent_away_from_the_login_page(self):
+        self.client.force_login(self.tenant)
+        self.assertEqual(self.client.get(reverse("accounts:login")).status_code, 302)
+
+    def test_logout_needs_post_and_ends_the_session(self):
+        self.client.force_login(self.tenant)
+        self.assertEqual(self.client.get(reverse("accounts:logout")).status_code, 405)
+        self.assertIn("_auth_user_id", self.client.session)
+        self.client.post(reverse("accounts:logout"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logged_in_user_cannot_open_register(self):
+        self.client.force_login(self.tenant)
+        self.assertEqual(self.client.get(reverse("accounts:register")).status_code, 302)
 
 
 class PasswordReset(TestCase):

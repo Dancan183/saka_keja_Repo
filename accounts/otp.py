@@ -102,21 +102,23 @@ def complete_registration(pending):
     May raise IntegrityError, or PhoneNotVerified when the phone check is gone.
     """
     with transaction.atomic():
-        phone_check = (
-            PhoneVerification.objects.select_for_update()
-            .filter(
-                token=pending.phone_token or "-",
-                phone=pending.phone_number,
-                verified_at__isnull=False,
-                consumed_at__isnull=True,
-                verified_at__gt=timezone.now() - VERIFIED_LIFETIME,
+        # Only landlords are verified by SMS (to keep SMS costs down). Tenants verify their email only.
+        if pending.role == User.Role.LANDLORD:
+            phone_check = (
+                PhoneVerification.objects.select_for_update()
+                .filter(
+                    token=pending.phone_token or "-",
+                    phone=pending.phone_number,
+                    verified_at__isnull=False,
+                    consumed_at__isnull=True,
+                    verified_at__gt=timezone.now() - VERIFIED_LIFETIME,
+                )
+                .first()
             )
-            .first()
-        )
-        if phone_check is None:
-            raise PhoneNotVerified()
-        phone_check.consumed_at = timezone.now()  # a verification can be used once
-        phone_check.save(update_fields=["consumed_at"])
+            if phone_check is None:
+                raise PhoneNotVerified()
+            phone_check.consumed_at = timezone.now()  # a verification can be used once
+            phone_check.save(update_fields=["consumed_at"])
 
         user = User(
             username=pending.username,

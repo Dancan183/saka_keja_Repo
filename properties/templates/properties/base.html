@@ -1,12 +1,11 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Saka Keja{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="{% static 'properties/base.css' %}">
 </head>
 <body>
@@ -30,38 +29,65 @@
   </div>
 </div>
 
-<nav class="site-nav">
+{% with here=request.resolver_match.view_name %}
+<nav class="site-nav" aria-label="Main">
   <div class="nav-inner">
-    <a href="{% url 'properties:home' %}" class="brand">Saka Keja</a>
+    <a href="{% url 'properties:home' %}" class="brand" aria-label="Saka Keja home"><img src="{% static 'properties/logo.svg' %}" alt="Saka Keja. Find. Buy. Live better."></a>
 
-    <a href="{% url 'properties:house_list' %}">Find a house</a>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
 
-    {% if user.is_authenticated %}
-      {% if user.is_landlord %}
-        <a href="{% url 'properties:my_houses' %}">My houses</a>
-        <a href="{% url 'properties:house_create' %}">Add a house</a>
-        <a href="{% url 'inquiries:inbox' %}">
-          Inquiries{% if unread_inquiries %} <span class="badge">{{ unread_inquiries }}</span>{% endif %}
-        </a>
-      {% else %}
-        <a href="{% url 'inquiries:sent' %}">My inquiries</a>
-      {% endif %}
-      <a href="{% url 'reviews:my_reviews' %}">Reviews</a>
+    <div class="nav-menu" id="nav-menu">
+      <ul class="nav-links">
+        <li><a class="nav-link{% if here == 'properties:home' %} is-current{% endif %}" href="{% url 'properties:home' %}"{% if here == 'properties:home' %} aria-current="page"{% endif %}>Home</a></li>
+        <li><a class="nav-link{% if here == 'properties:house_list' or here == 'properties:house_detail' %} is-current{% endif %}" href="{% url 'properties:house_list' %}"{% if here == 'properties:house_list' %} aria-current="page"{% endif %}>Find house</a></li>
 
-      <span>Hi, {{ user.username }}</span>
+        {% if user.is_authenticated and user.is_landlord %}
+          <li><a class="nav-link{% if here == 'properties:house_create' %} is-current{% endif %}" href="{% url 'properties:house_create' %}">List house</a></li>
+          <li><a class="nav-link{% if here == 'properties:my_houses' %} is-current{% endif %}" href="{% url 'properties:my_houses' %}">My houses</a></li>
+          <li><a class="nav-link{% if here == 'inquiries:inbox' %} is-current{% endif %}" href="{% url 'inquiries:inbox' %}">Inquiries{% if unread_inquiries %} <span class="badge">{{ unread_inquiries }}</span>{% endif %}</a></li>
+        {% elif user.is_authenticated %}
+          <li><a class="nav-link{% if here == 'inquiries:sent' %} is-current{% endif %}" href="{% url 'inquiries:sent' %}">My inquiries</a></li>
+        {% else %}
+          <li><a class="nav-link" href="{% url 'accounts:register' %}?role=landlord">List house</a></li>
+        {% endif %}
 
-      {# Logout must be a POST form in current Django versions #}
-      <form method="post" action="{% url 'accounts:logout' %}">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-      </form>
-    {% else %}
-      <a href="{% url 'accounts:register' %}?role=landlord">List your house</a>
-      <a href="{% url 'accounts:login' %}">Login</a>
-      <a href="{% url 'accounts:register' %}">Register</a>
-    {% endif %}
+        {% if user.is_authenticated %}
+          <li><a class="nav-link{% if here == 'reviews:my_reviews' %} is-current{% endif %}" href="{% url 'reviews:my_reviews' %}">Reviews</a></li>
+        {% endif %}
+        <li><a class="nav-link" href="#contact">Contact us</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        {% if user.is_authenticated %}
+          <span class="nav-user">Hi, {{ user.username }}</span>
+          {# Logout must be a POST form in current Django versions #}
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav-btn">Logout</button>
+          </form>
+        {% else %}
+          <a class="nav-btn{% if here == 'accounts:login' or here == 'accounts:register' %} is-current{% endif %}" href="{% url 'accounts:login' %}">Login / Register</a>
+        {% endif %}
+      </div>
+    </div>
   </div>
 </nav>
+{% endwith %}
+
+<script>
+  (function () {
+    var btn = document.getElementById("nav-toggle"), menu = document.getElementById("nav-menu");
+    if (!btn || !menu) { return; }
+    btn.addEventListener("click", function () {
+      var open = menu.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    });
+    menu.addEventListener("click", function (e) { if (e.target.closest("a")) { menu.classList.remove("is-open"); btn.setAttribute("aria-expanded", "false"); } });
+  })();
+</script>
 
 {% block hero %}{% endblock %}
 
@@ -134,7 +160,7 @@
         </ul>
       </div>
 
-      <div class="footer-contact-col">
+      <div class="footer-contact-col" id="contact">
         <h3>Contact Us</h3>
         <ul class="footer-contact">
           <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ site_address }}</span></li>

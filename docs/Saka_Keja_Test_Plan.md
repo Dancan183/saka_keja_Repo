@@ -10,7 +10,7 @@ Records what needs testing, the steps to test it, expected results, and whether 
 | **Date** | October 2026 |
 | **Tester** | [your name] |
 | **Software version tested** | [Git commit or deployment link] |
-| **Overall result** | 100 of 118 cases pass; 17 not run yet; 1 blocked. All 145 automated tests pass in the development environment. Live-site checks are still open. |
+| **Overall result** | 100 of 118 cases pass; 17 not run yet; 1 blocked. All 153 automated tests pass in the development environment. Live-site checks are still open. |
 
 ---
 
@@ -100,7 +100,7 @@ The tester runs the cases and records results. The developer fixes defects and r
 | Security, performance and deployment | 7 | 1 | 6 | 0 |
 | **Total** | **118** | **100** | **17** | **1** |
 
-**Automated test suite:** 145 tests, all passing in the development environment: accounts 68, properties 24, inquiries 12, reviews 41.
+**Automated test suite:** 153 tests, all passing in the development environment: accounts 76, properties 24, inquiries 12, reviews 41. Seven of the accounts tests (class `TenantRegistrationNeedsNoSms`) cover the rule that tenants verify email only and landlords also verify their phone; they are not yet itemised as numbered cases above.
 
 ---
 

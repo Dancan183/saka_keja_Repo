@@ -10,7 +10,7 @@ class RegisterForm(UserCreationForm):
     phone_number = forms.CharField(
         label="Phone number",
         max_length=20,
-        required=True,
+        required=True,    # everyone gives a number; only landlords verify it by SMS
         widget=forms.TextInput(
             attrs={"type": "tel", "inputmode": "tel", "autocomplete": "tel", "placeholder": "0712 345 678"}
         ),
@@ -23,7 +23,7 @@ class RegisterForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("username", "email", "phone_number", "role")
+        fields = ("username", "email", "role", "phone_number")
 
     def clean_email(self):
         email = self.cleaned_data["email"].lower()

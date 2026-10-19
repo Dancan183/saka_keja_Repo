@@ -11,7 +11,7 @@
 - **Two roles:** tenant and landlord. Landlords add, edit and manage houses and photos.
 - **Inquiries:** tenants message a landlord from a house page. Both sides have an inbox.
 - **Reviews:** only after an inquiry between that tenant and landlord. One review per pair. Reviews about landlords are public; reviews about tenants are private. Admins hide reviews that break the rules.
-- **Two-step sign-up:** a phone code by SMS, then an email code. The account is created only after both succeed.
+- **Verified sign-up:** tenants confirm their email; landlords confirm their phone by SMS and their email. The account is created only after verification succeeds. (SMS costs money, so tenants skip it.)
 - **Password reset** by email.
 
 ## Tech stack
@@ -91,7 +91,7 @@ For local testing of real email or SMS, put variables in your shell session. Kee
 python manage.py test
 ```
 
-145 tests: accounts 68, properties 24, inquiries 12, reviews 41. SMS and email use in-memory backends during tests, so nothing is sent.
+153 tests: accounts 76, properties 24, inquiries 12, reviews 41. SMS and email use in-memory backends during tests, so nothing is sent.
 
 ## Deployment
 

@@ -193,7 +193,7 @@ Constraint: one report per user per review. A report never hides a review.
 | GET, POST | `password-reset/<uidb64>/<token>/` | Public (valid link) | Set a new password |
 | GET | `password-reset/complete/` | Public | Done page |
 
-**Register form fields:** `username`, `email`, `phone_number`, `password1`, `password2`, `role` (`tenant` or `landlord`). Phone must be a valid Kenyan number. Email must not already exist. The phone must already be verified in this browser session. On success the visitor is sent to `verify/`.
+**Register form fields:** `username`, `email`, `role`, `phone_number`, `password1`, `password2` (`tenant` or `landlord`). Email must not already exist. **Landlords** must give a valid Kenyan phone number and must already have verified it by SMS in this browser session. **Tenants** must also give a valid Kenyan phone number, but it is only format-checked and is stored unverified (no SMS). On success the visitor is sent to `verify/`.
 
 **Email verify form field:** `code` (6 digits). Success creates the user, logs them in, and redirects landlords to the add-house page and tenants to the house list. Failures: wrong code (max 5), expired code (10 min), expired sign-up (30 min). Resend is allowed once per 60 seconds.
 

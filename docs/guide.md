@@ -4,9 +4,17 @@ For tenants, landlords and administrators.
 
 ## 1. Creating an account
 
-You verify your phone and your email. Your account is created only after both.
+Your account is created only after you verify. **Tenants verify their email. Landlords verify their phone number and their email.**
 
-1. Open **Register** and fill in your details. Choose **Tenant** (looking for a house) or **Landlord** (listing houses).
+**Tenants**
+
+1. Open **Register**, choose **Tenant** and fill in your details, including a real Kenyan phone number (07xx or 01xx). It is checked for a valid format, but no SMS code is sent to tenants.
+2. Submit the form. A 6-digit code is sent to your email. It is valid for **10 minutes**.
+3. Enter it on the next page. Your account is now created.
+
+**Landlords**
+
+1. Open **Register** (or **List your house**) and choose **Landlord**. Fill in your details, including your phone number.
 2. Enter your phone number and press **Confirm Phone Number**. A 6-digit code arrives by SMS. It is valid for **5 minutes**.
 3. Enter the code and press **Verify Code**.
 4. Submit the form. A 6-digit code is sent to your email. It is valid for **10 minutes**.
@@ -15,9 +23,9 @@ You verify your phone and your email. Your account is created only after both.
 Tips:
 
 - Use the **same browser** from start to finish. Your unfinished sign-up is tied to it and is kept for 30 minutes.
-- You can ask for a new SMS code after 60 seconds, and a new email code after 60 seconds.
+- You can ask for a new email code after 60 seconds (landlords: the same for SMS codes).
 - You get 5 tries per code. After that, request a new one.
-- Limits: 5 SMS codes per phone number per hour.
+- Limits for landlords: 5 SMS codes per phone number per hour.
 - Check your spam folder for the email.
 
 ## 2. Logging in and out

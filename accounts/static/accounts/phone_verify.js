@@ -17,6 +17,16 @@
   var badge = document.getElementById("phone-badge");
   var submitBtn = document.getElementById("register-submit");
   var csrf = document.querySelector("#register-form [name=csrfmiddlewaretoken]");
+  var roleSelect = document.getElementById("id_role");
+  var phoneLabel = document.getElementById("phone-label");
+  var codeRow = block.querySelector(".phone-code-row");
+  var codeLabel = block.querySelector(".phone-code-label");
+  var phoneRow = block.querySelector(".phone-row");
+
+  // Only landlords verify their phone by SMS. Tenants verify their email only.
+  function needsPhoneCheck() {
+    return !roleSelect || roleSelect.value === "landlord";
+  }
 
   var urls = {
     send: block.dataset.sendUrl,
@@ -101,7 +111,7 @@
     block.classList.remove("is-verified");
     badge.hidden = true;
     lockCode();
-    submitBtn.disabled = true;
+    submitBtn.disabled = needsPhoneCheck();
     if (!cooldownTimer) { setConfirmLabel("Confirm Phone Number", false); }
     setStatus(message || "", message ? "error" : "");
   }
@@ -130,7 +140,7 @@
         activePhone = phone;
         block.classList.remove("is-verified");
         badge.hidden = true;
-        submitBtn.disabled = true;
+        submitBtn.disabled = needsPhoneCheck();
         codeInput.value = "";
         codeInput.disabled = false;
         verifyBtn.disabled = false;
@@ -193,6 +203,10 @@
 
   // ----- Phone number edited: throw away the code / verified state -----
   phoneInput.addEventListener("input", function () {
+    if (!needsPhoneCheck()) {
+      if (!statusEl.hidden) { statusEl.hidden = true; setStatus("", ""); }
+      return;
+    }
     if (state === "idle") {
       setStatus("", "");
       return;
@@ -206,7 +220,37 @@
 
   // Enter inside the phone box should not submit the form by accident.
   phoneInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") { event.preventDefault(); confirmBtn.click(); }
+    if (event.key === "Enter" && needsPhoneCheck()) { event.preventDefault(); confirmBtn.click(); }
+  });
+
+  // ----- Role: show the SMS check for landlords, hide it for tenants -----
+  function applyRole() {
+    var landlord = needsPhoneCheck();
+    confirmBtn.hidden = !landlord;
+    codeRow.hidden = !landlord;
+    codeLabel.hidden = !landlord;
+    statusEl.hidden = !landlord;
+    badge.hidden = !landlord || state !== "verified";
+    if (phoneLabel) { phoneLabel.textContent = "Phone number"; }
+    phoneRow.classList.toggle("no-button", !landlord);
+    if (landlord) {
+      submitBtn.disabled = state !== "verified";
+    } else {
+      submitBtn.disabled = false;       // email verification is enough for tenants
+      setStatus("", "");
+    }
+  }
+  if (roleSelect) { roleSelect.addEventListener("change", applyRole); }
+
+  // Tenants are not sent a code, but their number must still be a real Kenyan number (no garbage).
+  document.getElementById("register-form").addEventListener("submit", function (event) {
+    if (needsPhoneCheck()) { return; }
+    if (!normalize(phoneInput.value)) {
+      event.preventDefault();
+      statusEl.hidden = false;
+      setStatus("Enter a valid Kenyan phone number, for example 0712 345 678.", "error");
+      phoneInput.focus();
+    }
   });
 
   // ----- Starting state -----
@@ -216,7 +260,8 @@
     setStatus("Phone number verified successfully.", "ok");
   } else {
     lockCode();
-    submitBtn.disabled = true;     // the server also rejects an unverified number
+    submitBtn.disabled = true;     // the server also rejects an unverified landlord number
     setConfirmLabel("Confirm Phone Number", false);
   }
+  applyRole();
 })();

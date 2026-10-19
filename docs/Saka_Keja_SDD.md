@@ -18,6 +18,7 @@ Saka Keja is a **modular monolith**: one Django project split into four apps, re
 
 `![alt text](image.png)
 
+
 The browser also loads house photos straight from the storage bucket, and static files from the Vercel CDN, so those requests do not pass through Django. A push to GitHub starts a Vercel build that runs the database migrations.
 
 ### 1.3 Components
@@ -56,7 +57,7 @@ The browser also loads house photos straight from the storage bucket, and static
 | Module | Responsibility |
 |---|---|
 | `Saka_Keja` (project) | Settings, root URLs, WSGI entry point |
-| `accounts` | User model, registration, phone and email verification, login, logout, password reset |
+| `accounts` | User model, registration, email verification (plus phone verification for landlords), login, logout, password reset |
 | `properties` | Locations, houses, photos, search, landlord dashboard, landing page, base template |
 | `inquiries` | Tenant messages to landlords, landlord inbox, unread count |
 | `reviews` | Reviews, reports, ratings, and the rules for who may review whom |
@@ -128,7 +129,7 @@ Each app owns its models, views, URLs, templates and tests. The shared page stru
 ### 4.1 Registration with two verifications
 
 1. The visitor opens the register page and types a phone number.
-2. **Confirm Phone Number** sends it to the server. The server normalises it to `+254` format, checks the send limits, creates a random 6-digit code, stores only a keyed hash that includes the number, sends the SMS, and remembers a random token in the visitor's session.
+2. (Landlords only; tenants skip this step.) **Confirm Phone Number** sends it to the server. The server normalises it to `+254` format, checks the send limits, creates a random 6-digit code, stores only a keyed hash that includes the number, sends the SMS, and remembers a random token in the visitor's session.
 3. The page unlocks the code field. The visitor types the code and the server compares hashes, checking expiry and attempts.
 4. The visitor fills in the rest of the form. On submit the server checks that this browser verified exactly this number, saves a pending record (password already hashed) and emails a 6-digit code.
 5. The visitor enters the email code. The server checks it the same way.
@@ -168,7 +169,7 @@ The browser posts the image to Django, which hands it to the storage layer. The 
 |---|---|---|
 | Server-rendered Django monolith, no separate API | Fast to build, one deployment, light pages for slow phones | A mobile app later needs an API layer |
 | One custom User model with a role field | Shared login, simple permissions, one table | Role changes must be controlled |
-| Create the user only after both verifications, using a pending table | Keeps the user table clean and stops email squatting | An extra temporary table and cleanup |
+| Create the user only after verification (email for tenants, phone and email for landlords), using a pending table | Keeps the user table clean and stops email squatting | An extra temporary table and cleanup |
 | Tie verification to the browser session and exact phone number | Blocks reuse from another browser or number | The user must finish in the same browser |
 | Store codes as keyed hashes that include the phone number | Codes cannot be read or reused for another number | A leaked database and key could still reveal 6-digit codes, limited by expiry and single use |
 | Keep rate limits in the database | Serverless functions share no memory and there is no Redis | Extra queries and coarse limits |
