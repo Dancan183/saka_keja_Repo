@@ -2,10 +2,37 @@
 
 {% block content %}
 
+<style>
+  .house-layout { display: grid; grid-template-columns: minmax(0, 540px) minmax(0, 1fr); gap: 2rem 3rem; align-items: start; }
+  .house-layout .house-form input[type=text], .house-layout .house-form input[type=number], .house-layout .house-form select, .house-layout .house-form textarea { max-width: none; }
+  .tips-card { background: #f3faf6; border: 1px solid #cfe3d8; border-radius: 16px; padding: 1.2rem 1.4rem 1.3rem; position: sticky; top: 6rem; }
+  .tips-card summary { font-size: 1.15rem; font-weight: 800; color: var(--forest); cursor: pointer; list-style-position: outside; }
+  .tips-card summary:focus-visible { outline: 3px solid rgba(27, 127, 75, .45); outline-offset: 3px; border-radius: 6px; }
+  .tips-card h2 { font-size: 1rem; margin: 1.1rem 0 .3rem; color: var(--forest); }
+  .tips-card p { margin: 0 0 .5rem; color: #374151; font-size: .95rem; }
+  .tips-card ol.steps { margin: .6rem 0 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: .9rem; }
+  .tips-card ol.steps > li { counter-increment: step; position: relative; padding-left: 2.2rem; }
+  .tips-card ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: .05rem; width: 1.55rem; height: 1.55rem; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; font-size: .8rem; font-weight: 700; }
+  .tips-card .step-title { font-weight: 700; color: var(--dark); display: block; margin-bottom: .15rem; }
+  .tips-card ul.examples { list-style: none; margin: .35rem 0 0; padding: 0; display: grid; gap: .35rem; }
+  .tips-card ul.examples li { background: #fff; border: 1px solid #dfe9e3; border-left: 4px solid var(--green); border-radius: 8px; padding: .4rem .7rem; font-size: .92rem; color: var(--forest); }
+  .tips-card .good { margin-top: 1rem; padding: .7rem .9rem; background: #e3f6ec; border-radius: 10px; font-size: .93rem; color: #11522f; }
+  .tips-card .good strong { display: block; margin-bottom: .15rem; }
+  .tips-card .rule { margin-top: 1rem; padding: .7rem .9rem; background: #fff8e1; border: 1px solid #f0d27a; border-radius: 10px; font-size: .93rem; color: #5b4300; }
+  .tips-card .rule strong { color: #3f2f00; }
+  @media (max-width: 900px) {
+    .house-layout { grid-template-columns: 1fr; }
+    .tips-card { position: static; order: -1; }
+  }
+</style>
+
 <p><a href="{% url 'properties:my_houses' %}">&laquo; Back to my houses</a></p>
 
 <h1>{{ title }}</h1>
 
+<div class="house-layout">
+
+<div>
 <form method="post" class="house-form" novalidate>
   {% csrf_token %}
 
@@ -35,5 +62,65 @@
 {% else %}
   <p class="note">You can upload photos after saving the house.</p>
 {% endif %}
+</div>
+
+<aside class="tips-card" aria-label="How to post your house">
+  <details id="tips" open>
+    <summary>How to post your house</summary>
+
+    <h2>Writing the title</h2>
+    <p>A clear title helps tenants find your house and call you sooner. Build it in three steps:</p>
+
+    <ol class="steps">
+      <li>
+        <span class="step-title">Describe the house</span>
+        Start with its size.
+        <ul class="examples">
+          <li>A 1 bedroom</li>
+          <li>A spacious 1 bedroom</li>
+        </ul>
+      </li>
+      <li>
+        <span class="step-title">Add what makes it special</span>
+        Mention one unique feature.
+        <ul class="examples">
+          <li>A 1 bedroom with spacious parking</li>
+          <li>A 2 bedroom with security cameras</li>
+        </ul>
+      </li>
+      <li>
+        <span class="step-title">Add a landmark so people can find it</span>
+        Name something well known nearby.
+        <ul class="examples">
+          <li>A 1 bedroom with spacious parking near Shell Petrol Station</li>
+          <li>A 1 bedroom with spacious parking, Kangema Road opposite Depot</li>
+          <li>A 1 bedroom with spacious parking opposite Mumbi Parish</li>
+        </ul>
+      </li>
+    </ol>
+
+    <div class="good">
+      <strong>Put together</strong>
+      A spacious 1 bedroom with parking near Shell Petrol Station, Mukuyu
+    </div>
+
+    <h2>Location</h2>
+    <p>Choose the nearest area in the <strong>Location</strong> list. Use the title for the exact landmark.</p>
+
+    <div class="rule">
+      <strong>Bedsitter?</strong> If the house type is <strong>Bedsitter</strong>, leave <strong>Bedrooms</strong> and <strong>Bathrooms</strong> at <strong>0</strong>.
+    </div>
+  </details>
+</aside>
+
+</div>
+
+<script>
+  // On phones the tips start folded so the form is not pushed down.
+  (function () {
+    var tips = document.getElementById("tips");
+    if (tips && window.matchMedia("(max-width: 900px)").matches) { tips.removeAttribute("open"); }
+  })();
+</script>
 
 {% endblock %}
