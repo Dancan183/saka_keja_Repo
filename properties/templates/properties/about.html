@@ -1,0 +1,40 @@
+{% extends "properties/static_page.html" %}
+{% block title %}About Us | Saka Keja{% endblock %}
+{% block crumb %}About Us{% endblock %}
+{% block page_body %}
+<h1>About Saka Keja</h1>
+<p class="lead">Saka Keja means "find a house". We help people in Murang'a County find a rental home, and help landlords find tenants, without wasted trips and unfiltered phone calls.</p>
+
+<h2>Why we exist</h2>
+<p>Looking for a house in Murang'a often means walking from plot to plot, asking neighbours, and arriving to find the house is taken or does not match the budget. Landlords have the opposite problem: empty houses, and calls from people who were never a fit.</p>
+<p>Saka Keja puts the information in one place so both sides can decide before anyone travels.</p>
+
+<h2>What you can do here</h2>
+<div class="card">
+  <h3 style="margin-top:0">If you are looking for a house</h3>
+  <ul>
+    <li>Search vacant houses by area, price, bedrooms, bathrooms and type.</li>
+    <li>See real photos and the monthly rent.</li>
+    <li>Message the landlord directly, or call or WhatsApp.</li>
+    <li>Read reviews of landlords written by tenants who actually dealt with them.</li>
+  </ul>
+  <h3>If you own or manage houses</h3>
+  <ul>
+    <li>List a house with photos, rent and a clear location.</li>
+    <li>Receive every inquiry in one inbox and mark houses as taken.</li>
+    <li>Build a good name through reviews from real tenants.</li>
+  </ul>
+</div>
+
+<h2>How we try to keep it trustworthy</h2>
+<ul>
+  <li><strong>Verified accounts.</strong> Everyone confirms their email. Landlords also confirm their phone number by SMS.</li>
+  <li><strong>Reviews tied to real contact.</strong> You can review someone only after an inquiry has passed between you, and only once per person.</li>
+  <li><strong>Moderation.</strong> Reviews or listings that break the rules can be reported and are removed by our team.</li>
+</ul>
+
+<h2>Where we are</h2>
+<p>We are based in {{ site_address }}, and we are starting with Murang'a County. Questions or ideas? Write to <a href="mailto:{{ site_email }}">{{ site_email }}</a> or call <a href="tel:{{ site_phone_link }}">{{ site_phone }}</a>.</p>
+
+<p class="cta"><a class="button" href="{% url 'properties:house_list' %}">Find a house</a> &nbsp; <a href="{% url 'accounts:register' %}?role=landlord">List your house</a></p>
+{% endblock %}

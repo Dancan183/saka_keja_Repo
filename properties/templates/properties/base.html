@@ -10,7 +10,7 @@
 </head>
 <body>
 {# EDIT YOUR CONTACT DETAILS HERE. They are used in the top bar and the footer. #}
-{% with site_email="hello@sakakeja.co.ke" site_phone="+254 700 000 000" site_phone_link="+254700000000" site_address="Murang'a Town, Kenya" %}
+{% with site_email="dancannyakundi836@gmail.com" site_phone="+254 798907004" site_phone_link="+254 798907004" site_address="Murang'a Town, Kenya" %}
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -21,7 +21,8 @@
     </ul>
     <div class="topbar-social">
       <span>Follow us:</span>
-      <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#" aria-label="Tiktok"><i class="fa-brands fa-tiktok"></i></a>
+      <a href="https://www.facebook.com/dancan.martial.7" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
       <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
       <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
       <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
@@ -134,11 +135,11 @@
       <div>
         <h3>Company</h3>
         <ul>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Terms &amp; Conditions</a></li>
-          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="{% url 'properties:about' %}">About Us</a></li>
+          <li><a href="{% url 'properties:careers' %}">Careers</a></li>
+          <li><a href="{% url 'properties:faq' %}">FAQ</a></li>
+          <li><a href="{% url 'properties:terms' %}">Terms &amp; Conditions</a></li>
+          <li><a href="{% url 'properties:privacy' %}">Privacy Policy</a></li>
         </ul>
       </div>
 
@@ -173,7 +174,7 @@
 
     <div class="footer-bottom">
       <span>&copy; {% now "Y" %} Saka Keja. All rights reserved.</span>
-      <span>Designed with <span class="heart">&hearts;</span> for your dream home</span>
+      <span>Designed with <mark>&hearts;</mark> for your dream home</span>
     </div>
   </div>
 </footer>

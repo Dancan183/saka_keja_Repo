@@ -1,0 +1,81 @@
+{% extends "properties/static_page.html" %}
+{% block title %}Privacy Policy | Saka Keja{% endblock %}
+{% block crumb %}Privacy Policy{% endblock %}
+{% block page_body %}
+<h1>Privacy Policy</h1>
+<p class="updated">Last updated: 22 October 2026</p>
+<p class="lead">This policy explains what personal information Saka Keja collects, why, who sees it, and what rights you have under Kenya's Data Protection Act, 2019.</p>
+
+<div class="note"><strong>Draft notice:</strong> this text describes how the site works today. Have a Kenyan lawyer review it, and check whether the business must register with the Office of the Data Protection Commissioner (ODPC), before you rely on it.</div>
+
+<h2>1. Who is responsible</h2>
+<p>Saka Keja decides how and why your information is used (the "data controller"). Contact us at <a href="mailto:{{ site_email }}">{{ site_email }}</a>, {{ site_address }}.</p>
+
+<h2>2. What we collect</h2>
+<table>
+  <thead><tr><th>Information</th><th>When</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Username, email, password (stored only as a hash), role</td><td>You register</td><td>To create and secure your account</td></tr>
+    <tr><td>Phone number</td><td>You register</td><td>Landlords: to verify them and let tenants call or WhatsApp. Tenants: so a landlord can reach you.</td></tr>
+    <tr><td>Verification codes</td><td>You register</td><td>To prove you own the phone and email. Stored only as hashes and deleted or expired shortly after.</td></tr>
+    <tr><td>House details and photos</td><td>Landlords list a house</td><td>To show the listing to the public</td></tr>
+    <tr><td>Inquiries and replies</td><td>You contact or answer someone</td><td>To pass the message between tenant and landlord</td></tr>
+    <tr><td>Reviews and reports</td><td>You write or report one</td><td>To show reviews and moderate them</td></tr>
+    <tr><td>IP address</td><td>You ask for an SMS code</td><td>To prevent abuse and limit the number of codes sent</td></tr>
+    <tr><td>Session and security cookies</td><td>You use the site</td><td>To keep you logged in and protect forms</td></tr>
+  </tbody>
+</table>
+<p>We do not ask for your national ID, bank or M-Pesa details, and we do not use advertising or tracking cookies.</p>
+
+<h2>3. What is public</h2>
+<ul>
+  <li>A landlord's <strong>phone number</strong>, username and house listings, photos and reviews received are visible to anyone who visits the site.</li>
+  <li>A tenant's details are shown only to a landlord they contact. Reviews about tenants are private.</li>
+  <li>Photos may contain hidden location data (EXIF). Remove it from photos if you do not want your exact location shared.</li>
+</ul>
+
+<h2>4. How we use it</h2>
+<p>To run the site: create accounts, verify people, show listings, deliver inquiries, show reviews, send you codes and password-reset emails, keep the site secure, and answer your questions. We do not sell your information.</p>
+
+<h2>5. Who else handles it</h2>
+<p>We use trusted providers to run the service. They process data on our behalf:</p>
+<ul>
+  <li><strong>Africa's Talking</strong> sends SMS codes to landlords.</li>
+  <li><strong>Our email provider</strong> sends verification and password-reset emails.</li>
+  <li><strong>Neon</strong> stores the database.</li>
+  <li><strong>Supabase</strong> stores uploaded photos.</li>
+  <li><strong>Vercel</strong> hosts the website.</li>
+</ul>
+<p>Some of these providers are outside Kenya, so your data may be processed abroad. We take reasonable steps to keep it protected, and we may also share information when the law requires it, for example to a court or the police.</p>
+
+<h2>6. How long we keep it</h2>
+<ul>
+  <li>Unfinished sign-ups are deleted after about 30 minutes.</li>
+  <li>Account information, listings, inquiries and reviews are kept while your account is open.</li>
+  <li>When you close your account, we delete or anonymise your personal data, except what we must keep by law or to settle a dispute.</li>
+</ul>
+
+<h2>7. How we protect it</h2>
+<p>Passwords and codes are stored hashed, forms are protected against forgery, the site uses HTTPS, and access to our systems is restricted. No system is perfectly secure. If a breach is likely to harm you, we will tell you and the ODPC as the law requires.</p>
+
+<h2>8. Your rights</h2>
+<p>Under the Data Protection Act, 2019 you have the right to:</p>
+<ul>
+  <li>be told how your data is used (this policy);</li>
+  <li>see the data we hold about you;</li>
+  <li>have wrong data corrected;</li>
+  <li>ask us to delete your data;</li>
+  <li>object to or limit certain uses;</li>
+  <li>receive a copy of your data in a usable format.</li>
+</ul>
+<p>To use any of these, email <a href="mailto:{{ site_email }}">{{ site_email }}</a> from the address on your account. We will reply within the time the law allows. If you are not satisfied, you may complain to the Office of the Data Protection Commissioner (<a href="https://www.odpc.go.ke" rel="noopener" target="_blank">odpc.go.ke</a>).</p>
+
+<h2>9. Children</h2>
+<p>Saka Keja is for people aged 18 and over. We do not knowingly collect information from children. If you think a child has registered, contact us and we will delete the account.</p>
+
+<h2>10. Changes</h2>
+<p>If we change this policy we will update the date above. For significant changes we will also tell registered users by email.</p>
+
+<h2>11. Contact</h2>
+<p>Questions: <a href="mailto:{{ site_email }}">{{ site_email }}</a>. See also our <a href="{% url 'properties:terms' %}">Terms &amp; Conditions</a>.</p>
+{% endblock %}

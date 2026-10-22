@@ -1,0 +1,41 @@
+{% extends "properties/static_page.html" %}
+{% block title %}FAQ | Saka Keja{% endblock %}
+{% block crumb %}FAQ{% endblock %}
+{% block page_body %}
+<h1>Frequently asked questions</h1>
+<p class="lead">Quick answers about finding a house, listing one, and your account.</p>
+
+<h2>For tenants</h2>
+<details><summary>Do I pay to search or contact a landlord?</summary>
+<p>No. Searching, viewing photos and sending an inquiry are free. Never pay anyone to "reserve" or "view" a house before you have seen it yourself.</p></details>
+<details><summary>How do I contact a landlord?</summary>
+<p>Open a house and press <strong>Contact the landlord</strong>. You must be logged in. The landlord's reply comes to your phone or your <strong>My inquiries</strong> page, and you can also call or WhatsApp from the house page.</p></details>
+<details><summary>What does the search show me?</summary>
+<p>Only houses marked <strong>vacant</strong>. Filter by area, price range, bedrooms (exact number), bathrooms (at least that many) and house type.</p></details>
+<details><summary>How do I stay safe?</summary>
+<p>Visit the house in daylight, ideally with someone, before paying anything. Confirm that the person showing it is the landlord or caretaker, ask for a receipt for every payment, and report listings that look fake.</p></details>
+
+<h2>For landlords</h2>
+<details><summary>How do I list a house?</summary>
+<p>Register as a <strong>Landlord</strong>, then choose <strong>List house</strong>. Write a clear title, pick the nearest area, enter the rent, and add photos after saving. The tips beside the form show how to write a good title.</p></details>
+<details><summary>What do I do for a bedsitter?</summary>
+<p>Choose the type <strong>Bedsitter</strong> and leave Bedrooms and Bathrooms at 0.</p></details>
+<details><summary>What photos are allowed?</summary>
+<p>Real photos of the house you are listing. No people, phone numbers, adverts, or pictures taken from other sites. Photos that break these rules may be removed.</p></details>
+<details><summary>How do I mark a house as taken?</summary>
+<p>Open <strong>My houses</strong> and change its status to occupied. It then disappears from search.</p></details>
+
+<h2>Your account</h2>
+<details><summary>Why do I need to verify?</summary>
+<p>Verification keeps fake accounts out. Tenants confirm their email with a 6-digit code. Landlords confirm their phone number by SMS and their email by a code.</p></details>
+<details><summary>I did not get my code.</summary>
+<p>Check your spam folder, wait one minute, and press resend. For SMS, check the number format (for example 0712 345 678). Use the same browser from start to finish, and finish within 30 minutes.</p></details>
+<details><summary>How do I log in?</summary>
+<p>Use your <strong>username</strong>, not your email. If you forget your password, use "Forgot your password?" on the login page and follow the link we email you.</p></details>
+<details><summary>How do reviews work?</summary>
+<p>You can review a landlord or tenant only after an inquiry has passed between you, and only once per person. Reviews of landlords are public. Reviews of tenants are private. You can edit or delete your own review, and report one that is false or abusive.</p></details>
+<details><summary>How do I delete my account or my data?</summary>
+<p>Email <a href="mailto:{{ site_email }}">{{ site_email }}</a> from the address on your account. See our <a href="{% url 'properties:privacy' %}">Privacy Policy</a> for your rights.</p></details>
+
+<div class="card"><strong>Still stuck?</strong> Email <a href="mailto:{{ site_email }}">{{ site_email }}</a> or call <a href="tel:{{ site_phone_link }}">{{ site_phone }}</a>.</div>
+{% endblock %}

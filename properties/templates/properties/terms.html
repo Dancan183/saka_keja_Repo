@@ -1,0 +1,79 @@
+{% extends "properties/static_page.html" %}
+{% block title %}Terms &amp; Conditions | Saka Keja{% endblock %}
+{% block crumb %}Terms &amp; Conditions{% endblock %}
+{% block page_body %}
+<h1>Terms &amp; Conditions</h1>
+<p class="updated">Last updated: 22 October 2026</p>
+<p class="lead">These terms explain the rules for using Saka Keja. By creating an account or using the site you agree to them. If you do not agree, please do not use the site.</p>
+
+<div class="note"><strong>Draft notice:</strong> this text was prepared for launch and should be reviewed by a Kenyan lawyer before you rely on it. Replace "Saka Keja" with the legal name of the business once registered.</div>
+
+<h2>1. What Saka Keja is</h2>
+<p>Saka Keja is an online notice board that helps tenants find rental houses and landlords find tenants in Murang'a County. We are a <strong>platform only</strong>. We do not own, rent, manage or inspect the houses listed, and we are not a party to any tenancy agreement between a landlord and a tenant.</p>
+
+<h2>2. Who may use it</h2>
+<ul>
+  <li>You must be 18 or older and able to enter into a contract.</li>
+  <li>You must give true information when you register, and keep it up to date.</li>
+  <li>Landlords must confirm their phone number and email. Tenants must confirm their email.</li>
+  <li>You are responsible for your password and for everything done under your account. Tell us at once if you think someone else has used it.</li>
+  <li>One person, one account. Do not pretend to be someone else.</li>
+</ul>
+
+<h2>3. Rules for landlords</h2>
+<ul>
+  <li>List only houses you own or are authorised to let.</li>
+  <li>Make the title, rent, rooms, location and description accurate. A bedsitter should show 0 bedrooms and 0 bathrooms.</li>
+  <li>Upload only real photos of the house. No people's faces, adverts, phone numbers, or photos taken from other sites or people.</li>
+  <li>Mark a house as occupied once it is taken.</li>
+  <li>Do not ask a tenant to pay money to view a house, and give a receipt for any payment you do receive.</li>
+  <li>Your phone number is shown publicly on your listings so that tenants can reach you.</li>
+</ul>
+
+<h2>4. Rules for tenants</h2>
+<ul>
+  <li>Send inquiries only when you are genuinely interested in a house.</li>
+  <li>Be honest and polite in messages.</li>
+  <li>Inspect a house in person and read any tenancy agreement before you pay a deposit or rent.</li>
+</ul>
+
+<h2>5. Everyone must not</h2>
+<ul>
+  <li>post anything false, misleading, abusive, threatening, discriminatory or illegal;</li>
+  <li>use the site to scam, spam or harass anyone;</li>
+  <li>collect other users' details to use for anything other than renting or letting a house;</li>
+  <li>try to break, overload or bypass the security of the site, or request verification codes for numbers or emails that are not yours.</li>
+</ul>
+
+<h2>6. Reviews</h2>
+<ul>
+  <li>You may review someone only after an inquiry has passed between the two of you, and only once per person.</li>
+  <li>Reviews must be honest and based on your own experience. No insults, personal data or threats.</li>
+  <li>Reviews of landlords are public. Reviews of tenants are visible only to the landlord who wrote them and to our administrators.</li>
+  <li>Anyone may report a review. A report does not remove it automatically; an administrator decides.</li>
+</ul>
+
+<h2>7. Money</h2>
+<p>Using Saka Keja is currently free. Saka Keja does not collect rent, deposits or commission, and does not hold anyone's money. <strong>Never send money to anyone through the site before seeing the house and meeting the landlord.</strong> If we introduce fees in future, we will tell you first and they will not apply to listings already published without notice.</p>
+
+<h2>8. Content you post</h2>
+<p>You keep ownership of your listings, photos, messages and reviews. By posting them you give Saka Keja a free, non-exclusive licence to store and display them on the site for as long as they are posted, so that the service can work. You promise that you have the right to post them.</p>
+
+<h2>9. Our right to act</h2>
+<p>We may remove a listing, photo, message or review, or suspend or close an account, if we believe it breaks these terms, is unsafe, or is required by law. We will try to explain why where we can. You may close your account at any time by emailing us.</p>
+
+<h2>10. No guarantees</h2>
+<p>We work to keep the site running and accurate, but we do not promise that it will always be available or error-free. We do not verify every listing and cannot promise that a house exists, is available, is as described, or that a landlord or tenant is honest. You use the site and deal with other users at your own risk.</p>
+
+<h2>11. Limit of liability</h2>
+<p>To the extent allowed by law, Saka Keja is not liable for losses arising from dealings between users, including lost deposits, rent disputes, or the condition of a house, nor for indirect or consequential losses. Nothing in these terms limits liability that cannot be limited by law, such as for fraud or for death or personal injury caused by negligence.</p>
+
+<h2>12. Changes</h2>
+<p>We may update these terms. The date at the top shows when they last changed. If you keep using the site after a change, you accept the new terms.</p>
+
+<h2>13. Law and disputes</h2>
+<p>These terms are governed by the laws of Kenya. Please contact us first so we can try to settle any problem. If that fails, the courts of Kenya have jurisdiction.</p>
+
+<h2>14. Contact</h2>
+<p>Questions about these terms: <a href="mailto:{{ site_email }}">{{ site_email }}</a>. See also our <a href="{% url 'properties:privacy' %}">Privacy Policy</a>.</p>
+{% endblock %}
