@@ -12,6 +12,8 @@ class Location(models.Model):
         MJINI = "Mjini", "Mjini"
         MUKUYU_MARKET = "Mukuyu Market", "Mukuyu Market"
         AREA_4 = "Area 4 near small gate", "Area 4 near small gate"
+        PIONEER = "Pioneer", "Pioneer"
+        CATHOLIC_CHURCH = "Catholic Church", "Catholic Church"
 
     name = models.CharField(
         max_length=100,

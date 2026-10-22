@@ -18,7 +18,7 @@ django.setup()
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 
-LOCATIONS = ["Murang'a Town", "Mjini", "Mukuyu Market", "Area 4 near small gate"]
+LOCATIONS = ["Murang'a Town", "Mjini", "Mukuyu Market", "Area 4 near small gate", "pioneer", "Catholic Church"]
 
 
 def main():
